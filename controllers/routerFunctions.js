@@ -5,6 +5,7 @@ const { dbGetUser, dbAddUser, dbGetNewId } = require('../models/dbFunctions');
 
 // Register New User:
 exports.createUser = async (req, res) => {
+  alert('hi');
   const { firstName, lastName, email, password } = req.body;
   try {
     const user = await dbGetUser(email);

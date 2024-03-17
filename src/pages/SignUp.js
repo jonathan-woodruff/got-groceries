@@ -8,7 +8,7 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-
+const API_ENDPOINT = require('../app/index');
 
 
 function Copyright(props) {
@@ -38,10 +38,14 @@ export default function SignUp() {
       email: data.get('email'),
       password: data.get('password')
     };
-    const res = await fetch('/sign-up', {
+    const res = await fetch(`${API_ENDPOINT}/sign-up`, {
       method: 'POST',
-      body: user
+      body: JSON.stringify(user),
+      headers: {
+        "Content-Type": "application/json",
+      }
     });
+    alert(res.status);
   };
 
   return (
