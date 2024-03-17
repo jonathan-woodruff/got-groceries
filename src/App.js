@@ -6,7 +6,6 @@ import { RouterProvider, createBrowserRouter, Route, createRoutesFromElements } 
 const router = createBrowserRouter(createRoutesFromElements(
   <>
     <Route path='/' element={ <SignIn /> } />
-    <Route path='/sign-in' element={ <SignIn /> } />
     <Route path='/sign-up' element={ <SignUp /> } />
   </>
 ));
