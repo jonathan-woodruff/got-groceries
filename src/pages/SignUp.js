@@ -38,7 +38,7 @@ export default function SignUp() {
       email: data.get('email'),
       password: data.get('password')
     };
-    const res = await fetch(`${API_ENDPOINT}/sign-up`, {
+    const res = await fetch(`${API_ENDPOINT}/auth/sign-up`, {
       method: 'POST',
       body: JSON.stringify(user),
       headers: {
