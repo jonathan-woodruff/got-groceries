@@ -1,5 +1,7 @@
 import { BrowserRouter, Navigate, Routes, Route, Outlet } from 'react-router-dom';
-import Dashboard from './pages/dashboard';
+import CreateMeal from './pages/create-meal';
+import Meals from './pages/meals';
+import List from './pages/list';
 import Register from './pages/register';
 import Login from './pages/login';
 import { useSelector, useDispatch } from 'react-redux';
@@ -29,7 +31,7 @@ const PrivateRoutes =  () => {
     };
     getUser();
   }
-  return ( //Outlet is the respective child element of Private Routes. For example, below you nest Dashboard under PrivateRoutes, so Outlet would be Dashboard in that case.
+  return ( //Outlet is the respective child element of Private Routes. For example, below you nest List under PrivateRoutes, so Outlet would be List in that case.
     <>
       { isAuth || ssoLogin ? <Outlet /> : <Navigate to='/login'/> }
     </>
@@ -40,7 +42,7 @@ const RestrictedRoutes = () => {
   const { isAuth, ssoLogin } = useSelector(state => state.auth);
   return (
     <>
-      { !(isAuth || ssoLogin) ? <Outlet /> : <Navigate to='/dashboard'/> }
+      { !(isAuth || ssoLogin) ? <Outlet /> : <Navigate to='/list'/> }
     </>
   );
 };
@@ -52,7 +54,9 @@ const App = () => {
     <BrowserRouter>
       <Routes>
         <Route element={ <PrivateRoutes /> } >
-          <Route path='/dashboard' element={ <Dashboard /> } />
+          <Route path='/list' element={ <List /> } />
+          <Route path='/meals' element={ <Meals /> } />
+          <Route path='/meals/create-meal' element={ <CreateMeal /> } />
         </Route>
 
         <Route element={ <RestrictedRoutes /> } >

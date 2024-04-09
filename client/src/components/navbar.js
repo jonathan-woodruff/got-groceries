@@ -35,7 +35,7 @@ export const Navbar = () => {
                 </Typography>
                 {isAuth || ssoLogin ? (
                     <Stack direction='row' spacing={3}>
-                        <Button color='inherit'>Dashboard</Button>
+                        <Button color='inherit'>Home</Button>
                         <Button color='inherit' onClick={ () => logout() }>Log out</Button>
                     </Stack>
                 ) : (
