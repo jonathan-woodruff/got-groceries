@@ -54,6 +54,10 @@ const Meals = () => {
     protectedInfo();
   }, []);
 
+  const handleClick = () => {
+    navigate('/meals/create-meal')
+  }
+
   return loading ? (
     <Layout>
       <h1>Loading...</h1>
@@ -73,7 +77,7 @@ const Meals = () => {
               }}
             >
               <Button 
-                type="submit"
+                onClick={ handleClick }
                 fullWidth
                 variant="contained"
                 sx={{ mt: 3, mb: 2 }}

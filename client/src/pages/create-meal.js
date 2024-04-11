@@ -30,12 +30,11 @@ const CreateMeal = () => {
   const { ssoLogin } = useSelector(state => state.auth);
   const [loading, setLoading] = useState(true);
   const [protectedData, setProtectedData] = useState(null);
-  const [values, setValues] = useState({
-    mealName: '',
-    ingredient: '',
-    ingredientQuantity: '',
-    ingredientCategory: 'produce'
-  });
+  const [index, setIndex] = useState(0);
+  const [mealName, setMealName] = useState('');
+  const [values, setValues] = useState([
+    { ingredient: '', ingredientQuantity: '', ingredientCategory: 'produce' }
+  ]);
 
   const logout = async () => {
     try {
@@ -68,9 +67,11 @@ const CreateMeal = () => {
   };
 
   const handleChange = (e) => {
-    console.log(e.target.name);
-    console.log(e.target.value);
-    setValues({ ...values, [e.target.name]: e.target.value});
+    setValues([ ...values, values[index][e.target.name] = e.target.value ]);
+  };
+
+  const handleMealNameChange = (e) => {
+    setMealName(e.target.value);
   };
 
   return loading ? (
@@ -102,48 +103,94 @@ const CreateMeal = () => {
                   id="mealName"
                   label="Meal Name"
                   name="mealName"
-                  value={ values.mealName }
-                  onChange={ (e) => handleChange(e) }
+                  value={ mealName }
+                  onChange={ (e) => handleMealNameChange(e) }
                   autoComplete="Meal Name"
                   autoFocus
                 />
-                <Box>
-                    <TextField 
-                      margin="normal"
-                      id="ingredient"
-                      label="Ingredient"
-                      name="ingredient"
-                      value={ values.ingredient }
-                      onChange={ (e) => handleChange(e) }
-                      autoComplete="Ingredient"
-                      autoFocus 
-                      sx={{ mr: 1 }}
-                    />
-                    <TextField 
-                      margin="normal"
-                      id="ingredientQuantity"
-                      label="Quantity"
-                      name="ingredientQuantity"
-                      value={ values.ingredientQuantity }
-                      onChange={ (e) => handleChange(e) }
-                      autoComplete="Quantity"
-                      autoFocus 
-                      type="number"
-                      sx={{ mr: 1 }}
-                    />
-                    <InputLabel id="category">Category</InputLabel>
-                    <Select
-                        labelId="category"
-                        id="ingredientCategory"
-                        name="ingredientCategory"
-                        value={ values.ingredientCategory }
-                        label="Category"
+                <Box sx={{ display: 'flex', alignItems: 'center'}}>
+                    <Box sx={{ mt: 2 }}>
+                    { values.map((input, index) => {
+                        return (
+                          <Box key={index} sx={{ display: 'flex', alignItems: 'center' }}>
+                            <TextField 
+                              margin="normal"
+                              id="ingredient"
+                              label="Ingredient"
+                              name="ingredient"
+                              value={ values[0].ingredient }
+                              onChange={ (e) => handleChange(e) }
+                              autoComplete="Ingredient"
+                              autoFocus 
+                              sx={{ mr: 1 }}
+                            />
+                            <TextField 
+                              margin="normal"
+                              id="ingredientQuantity"
+                              label="Quantity"
+                              name="ingredientQuantity"
+                              value={ values[index].ingredientQuantity }
+                              onChange={ (e) => handleChange(e) }
+                              autoComplete="Quantity"
+                              autoFocus 
+                              type="number"
+                              sx={{ mr: 1 }}
+                            />
+                            <InputLabel id="category">Category</InputLabel>
+                            <Select
+                                labelId="category"
+                                id="ingredientCategory"
+                                name="ingredientCategory"
+                                value={ values[index].ingredientCategory }
+                                label="Category"
+                                onChange={ (e) => handleChange(e) }
+                            >
+                                <MenuItem value="dairy">Dairy</MenuItem>
+                                <MenuItem value="meat">Meat</MenuItem>
+                                <MenuItem value="produce">Produce</MenuItem>
+                            </Select>
+                          </Box>
+                        )
+                      })}
+                      <TextField 
+                        margin="normal"
+                        id="ingredient"
+                        label="Ingredient"
+                        name="ingredient"
+                        value={ values[0].ingredient }
                         onChange={ (e) => handleChange(e) }
-                    >
-                        <MenuItem value="dairy">Dairy</MenuItem>
-                        <MenuItem value="meat">Meat</MenuItem>
-                        <MenuItem value="produce">Produce</MenuItem>
-                    </Select>
+                        autoComplete="Ingredient"
+                        autoFocus 
+                        sx={{ mr: 1 }}
+                      />
+                      <TextField 
+                        margin="normal"
+                        id="ingredientQuantity"
+                        label="Quantity"
+                        name="ingredientQuantity"
+                        value={ values[index].ingredientQuantity }
+                        onChange={ (e) => handleChange(e) }
+                        autoComplete="Quantity"
+                        autoFocus 
+                        type="number"
+                        sx={{ mr: 1 }}
+                      />
+                    </Box>
+                    <Box sx={{ mt: 0 }}>
+                      <InputLabel id="category">Category</InputLabel>
+                      <Select
+                          labelId="category"
+                          id="ingredientCategory"
+                          name="ingredientCategory"
+                          value={ values[index].ingredientCategory }
+                          label="Category"
+                          onChange={ (e) => handleChange(e) }
+                      >
+                          <MenuItem value="dairy">Dairy</MenuItem>
+                          <MenuItem value="meat">Meat</MenuItem>
+                          <MenuItem value="produce">Produce</MenuItem>
+                      </Select>
+                    </Box>
                 </Box>
                 <Button
                   type="submit"
