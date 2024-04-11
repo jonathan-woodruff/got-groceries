@@ -7,6 +7,8 @@ import { fetchProtectedInfo, fetchProtectedInfoSSO, onLogout } from '../api/auth
 import Layout from '../components/layout';
 import { unauthenticateUser, notSSO, assignUser } from '../redux/slices/authSlice';
 import { useNavigate } from 'react-router-dom';
+import { createMealValidation } from '../validation/forms';
+import { onCreateMeal } from '../api/inapp';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
@@ -30,10 +32,9 @@ const CreateMeal = () => {
   const { ssoLogin } = useSelector(state => state.auth);
   const [loading, setLoading] = useState(true);
   const [protectedData, setProtectedData] = useState(null);
-  const [index, setIndex] = useState(0);
   const [mealName, setMealName] = useState('');
   const [values, setValues] = useState([
-    { ingredient: '', ingredientQuantity: '', ingredientCategory: 'produce' }
+    { ingredient: '', ingredientQuantity: '1', ingredientCategory: 'produce', used: false }
   ]);
 
   const logout = async () => {
@@ -64,10 +65,31 @@ const CreateMeal = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    //validate input client side
+    const message = createMealValidation(mealName, values);
+    if (message !== 'valid') {
+      alert(message);
+      return
+    }
+    //save the meal to the database
+    try {
+      await onCreateMeal(mealName, values);
+      navigate('/meals');
+    } catch(error) {
+      console.log(error.response.data.errors[0].msg); //error from axios
+    }
   };
 
-  const handleChange = (e) => {
-    setValues([ ...values, values[index][e.target.name] = e.target.value ]);
+  const handleChange = index => (e) => {
+    //set the state value to whatever the user entered
+    const data = [...values];
+    data[index][e.target.name] = e.target.value;
+    setValues(data);
+    //if the ingredients row is new/unchanged until now, flag it as changed and add a new row for the user
+    if (!data[index]['used']) {
+      data[index]['used'] = true;
+      setValues([...values, { ingredient: '', ingredientQuantity: '1', ingredientCategory: 'produce'}]);
+    }
   };
 
   const handleMealNameChange = (e) => {
@@ -113,83 +135,47 @@ const CreateMeal = () => {
                     { values.map((input, index) => {
                         return (
                           <Box key={index} sx={{ display: 'flex', alignItems: 'center' }}>
-                            <TextField 
-                              margin="normal"
-                              id="ingredient"
-                              label="Ingredient"
-                              name="ingredient"
-                              value={ values[0].ingredient }
-                              onChange={ (e) => handleChange(e) }
-                              autoComplete="Ingredient"
-                              autoFocus 
-                              sx={{ mr: 1 }}
-                            />
-                            <TextField 
-                              margin="normal"
-                              id="ingredientQuantity"
-                              label="Quantity"
-                              name="ingredientQuantity"
-                              value={ values[index].ingredientQuantity }
-                              onChange={ (e) => handleChange(e) }
-                              autoComplete="Quantity"
-                              autoFocus 
-                              type="number"
-                              sx={{ mr: 1 }}
-                            />
-                            <InputLabel id="category">Category</InputLabel>
-                            <Select
-                                labelId="category"
-                                id="ingredientCategory"
-                                name="ingredientCategory"
-                                value={ values[index].ingredientCategory }
-                                label="Category"
-                                onChange={ (e) => handleChange(e) }
-                            >
-                                <MenuItem value="dairy">Dairy</MenuItem>
-                                <MenuItem value="meat">Meat</MenuItem>
-                                <MenuItem value="produce">Produce</MenuItem>
-                            </Select>
+                            <Box sx={{ mt: 0 }}>
+                              <TextField 
+                                margin="normal"
+                                id="ingredient"
+                                label="Ingredient"
+                                name="ingredient"
+                                value={ values[index].ingredient }
+                                onChange={ handleChange(index) }
+                                autoComplete="Ingredient"
+                                sx={{ mr: 1 }}
+                              />
+                              <TextField 
+                                margin="normal"
+                                id="ingredientQuantity"
+                                label="Quantity"
+                                name="ingredientQuantity"
+                                value={ values[index].ingredientQuantity }
+                                onChange={ handleChange(index) }
+                                autoComplete="Quantity"
+                                type="number"
+                                sx={{ mr: 1 }}
+                              />
+                            </Box>
+                            <Box sx={{ mt: 1, flexDirection: 'column' }}>
+                              <Select
+                                  labelId="category"
+                                  id="ingredientCategory"
+                                  name="ingredientCategory"
+                                  value={ values[index].ingredientCategory }
+                                  label="Category"
+                                  onChange={ handleChange(index) }
+                              >
+                                  <MenuItem value="dairy">Dairy</MenuItem>
+                                  <MenuItem value="meat">Meat</MenuItem>
+                                  <MenuItem value="produce">Produce</MenuItem>
+                                  <MenuItem value=""></MenuItem>
+                              </Select>
+                            </Box>
                           </Box>
                         )
                       })}
-                      <TextField 
-                        margin="normal"
-                        id="ingredient"
-                        label="Ingredient"
-                        name="ingredient"
-                        value={ values[0].ingredient }
-                        onChange={ (e) => handleChange(e) }
-                        autoComplete="Ingredient"
-                        autoFocus 
-                        sx={{ mr: 1 }}
-                      />
-                      <TextField 
-                        margin="normal"
-                        id="ingredientQuantity"
-                        label="Quantity"
-                        name="ingredientQuantity"
-                        value={ values[index].ingredientQuantity }
-                        onChange={ (e) => handleChange(e) }
-                        autoComplete="Quantity"
-                        autoFocus 
-                        type="number"
-                        sx={{ mr: 1 }}
-                      />
-                    </Box>
-                    <Box sx={{ mt: 0 }}>
-                      <InputLabel id="category">Category</InputLabel>
-                      <Select
-                          labelId="category"
-                          id="ingredientCategory"
-                          name="ingredientCategory"
-                          value={ values[index].ingredientCategory }
-                          label="Category"
-                          onChange={ (e) => handleChange(e) }
-                      >
-                          <MenuItem value="dairy">Dairy</MenuItem>
-                          <MenuItem value="meat">Meat</MenuItem>
-                          <MenuItem value="produce">Produce</MenuItem>
-                      </Select>
                     </Box>
                 </Box>
                 <Button
@@ -198,7 +184,7 @@ const CreateMeal = () => {
                   variant="contained"
                   sx={{ mt: 2, mb: 2 }}
                 >
-                  Create Meal
+                  Save and Create
                 </Button>
               </Box>
             </ Box>

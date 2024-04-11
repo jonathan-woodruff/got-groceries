@@ -1,4 +1,4 @@
-/* This handles requests from the client */
+/* This handles auth requests from the client */
 
 const { Router } = require('express');
 const router = Router();
