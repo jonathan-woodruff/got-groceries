@@ -10,10 +10,15 @@ const userAuthFromLocalStorage = () => {
     return false;
 };
 
+const userEmailFromLocalStorage = () => {
+    const userEmail = localStorage.getItem('userEmail');
+    return userEmail ? userEmail : null;
+}
+
 const initialState = {
     isAuth: userAuthFromLocalStorage(),
     ssoLogin: false,
-    user_email: null
+    userEmail: userEmailFromLocalStorage()
 };
 
 export const authSlice = createSlice({
@@ -33,7 +38,7 @@ export const authSlice = createSlice({
             state.ssoLogin = false;
         },
         assignUser: (state, action) => {
-            state.user_email = action.payload.user_email;
+            state.userEmail = action.payload.userEmail;
         }
     }
 });

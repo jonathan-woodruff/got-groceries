@@ -14,7 +14,7 @@ passport.use(new GoogleStrategy({
 
     const email = profile.emails[0].value;
     const googleId = profile.id;
-    req.user = { user_email: email };
+    req.user = { userEmail: email };
 
     try {
         //check if user already has an sso account

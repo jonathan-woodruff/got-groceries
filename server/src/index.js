@@ -24,9 +24,11 @@ app.use(passport.session()); //for sso. Helps to modify the user stored in the s
 
 //import routes
 const authRoutes = require('./routes/auth');
+const inappRoutes = require('./routes/inapp')
 
 //initialize routes
 app.use('/auth', authRoutes);
+app.use('/inapp', inappRoutes);
 
 //app start
 const appStart = () => {

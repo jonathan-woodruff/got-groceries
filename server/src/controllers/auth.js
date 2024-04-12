@@ -37,7 +37,7 @@ exports.register = async (req, res) => { //user is trying to sign up with an ema
         return res.status(201).cookie('token', token, { httpOnly: true, secure: true }).json({ //create cookie
             success: true,
             message: 'The registration was successful',
-            user_email: email
+            userEmail: email
         });
     } catch(error) {
         console.log(error.message);
@@ -61,7 +61,7 @@ exports.login = async (req, res) => {
         return res.status(200).cookie('token', token, { httpOnly: true, secure: true }).json({ //send the user a cookie
             success: true,
             message: 'Logged in successfully',
-            user_email: user.email
+            userEmail: user.email
         })
     } catch(error) {
         console.log(error.message);

@@ -61,13 +61,14 @@ const Login = () => {
       try {
         const { data } = await onLogin(values); //the server sends back a token/cookie
         const payload = {
-          user_email: data.user_email
+          userEmail: data.userEmail
         };
         setError('');
         dispatch(notSSO());
         dispatch(assignUser(payload));
         dispatch(authenticateUser());
         localStorage.setItem('isAuth', 'true');
+        localStorage.setItem('userEmail', data.userEmail);
       } catch(error) {
         let errorMessage = error.response.data.errors[0].msg;
         if (errorMessage === 'data and hash arguments required') {

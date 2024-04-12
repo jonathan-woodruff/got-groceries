@@ -52,7 +52,7 @@ const Register = () => {
       try {
         const { data } = await onRegistration(values);
         const payload = {
-          user_email: data.user_email
+          userEmail: data.userEmail
         }
         setError('');
         setSuccess(data.message);
@@ -61,6 +61,7 @@ const Register = () => {
         dispatch(assignUser(payload));
         dispatch(authenticateUser());
         localStorage.setItem('isAuth', 'true');
+        localStorage.setItem('userEmail', data.userEmail)
       } catch(error) {
         console.log(error.response.data.errors[0].msg); //error from axios
         setError(error.response.data.errors[0].msg);

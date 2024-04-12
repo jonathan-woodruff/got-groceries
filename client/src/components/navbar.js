@@ -15,8 +15,9 @@ export const Navbar = () => {
             await onLogout();
             dispatch(notSSO());
             dispatch(unauthenticateUser());
-            dispatch(assignUser({ user_email: null }));
+            dispatch(assignUser({ userEmail: null }));
             localStorage.removeItem('isAuth');
+            localStorage.removeItem('userEmail');
         } catch(error) {
             console.log(error.response);
         }

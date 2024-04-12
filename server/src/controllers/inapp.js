@@ -4,7 +4,7 @@ const db = require('../db');
 
 //user clicked the button to create a new meal
 exports.createMeal = async (req, res) => {
-    const { mealName, values } = req.body;
+    const [mealName, values] = req.body;
     try {
         let q = await db.query(`SELECT * FROM users WHERE email = $1`, [email]);
         if (q.rows.length) { //validators/auth.js already ensured the user doesn't already have an email/password combination, so if the user has an email in the database, that means they previously signed up with sso
@@ -22,7 +22,7 @@ exports.createMeal = async (req, res) => {
         return res.status(201).cookie('token', token, { httpOnly: true, secure: true }).json({ //create cookie
             success: true,
             message: 'The registration was successful',
-            user_email: email
+            userEmail: email
         });
     } catch(error) {
         console.log(error.message);
