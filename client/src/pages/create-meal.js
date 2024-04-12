@@ -21,6 +21,8 @@ import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
+import IconButton from '@mui/material/IconButton';
+import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 
 
@@ -34,7 +36,7 @@ const CreateMeal = () => {
   const [protectedData, setProtectedData] = useState(null);
   const [mealName, setMealName] = useState('');
   const [values, setValues] = useState([
-    { ingredient: '', ingredientQuantity: '1', ingredientCategory: 'produce', used: false }
+    { ingredient: '', ingredientQuantity: '1', ingredientCategory: 'produce', used: false, showRemove: false }
   ]);
 
   const logout = async () => {
@@ -88,9 +90,16 @@ const CreateMeal = () => {
     //if the ingredients row is new/unchanged until now, flag it as changed and add a new row for the user
     if (!data[index]['used']) {
       data[index]['used'] = true;
-      setValues([...values, { ingredient: '', ingredientQuantity: '1', ingredientCategory: 'produce'}]);
+      if (index !== 0) data[index]['showRemove'] = true;
+      setValues([...values, { ingredient: '', ingredientQuantity: '1', ingredientCategory: 'produce', used: false, showRemove: false}]);
     }
   };
+
+  const handleRemove = index => (e) => {
+    const data = [...values];
+    data.splice(index, 1);
+    setValues(data);
+  }
 
   const handleMealNameChange = (e) => {
     setMealName(e.target.value);
@@ -153,9 +162,10 @@ const CreateMeal = () => {
                                 name="ingredientQuantity"
                                 value={ values[index].ingredientQuantity }
                                 onChange={ handleChange(index) }
-                                autoComplete="Quantity"
+                                autoComplete="Quantity" 
                                 type="number"
-                                sx={{ mr: 1 }}
+                                InputProps={{ inputProps: { min: 1 } }}                               
+                                sx={{ mr: 1, width: '100px' }}
                               />
                             </Box>
                             <Box sx={{ mt: 1, flexDirection: 'column' }}>
@@ -172,6 +182,19 @@ const CreateMeal = () => {
                                   <MenuItem value="produce">Produce</MenuItem>
                                   <MenuItem value=""></MenuItem>
                               </Select>
+                            </Box>
+                            <Box sx={{ mt: 2 }}>
+                            { values[index].showRemove ?
+                              <IconButton 
+                                aria-label="remove" 
+                                color="primary" 
+                                onClick={ handleRemove(index) }
+                                sx={{ ml: 2 }}
+                              >
+                                <RemoveCircleIcon />
+                              </IconButton> :
+                              <></>
+                            }
                             </Box>
                           </Box>
                         )

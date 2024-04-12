@@ -1,4 +1,4 @@
-/* middlewares to run upon the server getting requests */
+/* auth middlewares to run upon the server getting requests */
 
 const db = require('../db');
 const { hash } = require('bcrypt');
