@@ -4,8 +4,14 @@ const db = require('../db');
 
 //user clicked the button to create a new meal
 exports.createMeal = async (req, res) => {
-    const [mealName, values] = req.body;
+    const [userEmail, mealName, values] = req.body;
     try {
+        const { rows } = await db.query(`SELECT user_id FROM users WHERE email = $1`, [userEmail]);
+        const userId = rows[0].user_id;
+        await db.query(`INSERT INTO meals (name, user_id) VALUES ($1, $2)`, [mealName, userId]);
+        values.forEach(value => {
+            //await db.query(`INSERT INTO ingredients ()`)
+        })
         let q = await db.query(`SELECT * FROM users WHERE email = $1`, [email]);
         if (q.rows.length) { //validators/auth.js already ensured the user doesn't already have an email/password combination, so if the user has an email in the database, that means they previously signed up with sso
             await db.query(`UPDATE users SET password = $1 WHERE email = $2`, [hashedPassword, email]); //user already exists with sso but not with password, so set their password in the database
