@@ -31,7 +31,7 @@ const defaultTheme = createTheme();
 const CreateMeal = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { ssoLogin, userEmail } = useSelector(state => state.auth);
+  const { ssoLogin} = useSelector(state => state.auth);
   const [loading, setLoading] = useState(true);
   const [protectedData, setProtectedData] = useState(null);
   const [mealName, setMealName] = useState('');
@@ -44,9 +44,7 @@ const CreateMeal = () => {
       await onLogout();
       dispatch(notSSO());
       dispatch(unauthenticateUser());
-      dispatch(assignUser({ userEmail: null }));
       localStorage.removeItem('isAuth');
-      localStorage.removeItem('userEmail');
     } catch(error) {
       console.log(error.response);
     }
@@ -76,7 +74,7 @@ const CreateMeal = () => {
     }
     //save the meal to the database
     try {
-      await onCreateMeal(userEmail, mealName, values);
+      await onCreateMeal(mealName, values);
       navigate('/meals');
     } catch(error) {
       console.log(error.response.data.errors[0].msg); //error from axios

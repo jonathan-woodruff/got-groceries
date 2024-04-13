@@ -22,9 +22,6 @@ const PrivateRoutes =  () => {
         }
         throw new Error('authentication failed');
       })
-      .then(responseObject => {
-        dispatch(assignUser({ userEmail: responseObject.data.user.emails[0].value }));
-      })
       .catch(error => {
         console.log(error);
       });

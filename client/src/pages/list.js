@@ -34,9 +34,7 @@ const List = () => {
       await onLogout();
       dispatch(notSSO());
       dispatch(unauthenticateUser());
-      dispatch(assignUser({ userEmail: null }));
       localStorage.removeItem('isAuth');
-      localStorage.removeItem('userEmail');
     } catch(error) {
       console.log(error.response);
     }

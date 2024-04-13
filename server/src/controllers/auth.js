@@ -36,8 +36,7 @@ exports.register = async (req, res) => { //user is trying to sign up with an ema
         const token = await sign(payload, SECRET, { expiresIn: 60 * 60 * 24 }); //create jwt token
         return res.status(201).cookie('token', token, { httpOnly: true, secure: true }).json({ //create cookie
             success: true,
-            message: 'The registration was successful',
-            userEmail: email
+            message: 'The registration was successful'
         });
     } catch(error) {
         console.log(error.message);
@@ -60,8 +59,7 @@ exports.login = async (req, res) => {
         const token = await sign(payload, SECRET, { expiresIn: expiryTime }); //create jwt token
         return res.status(200).cookie('token', token, { httpOnly: true, secure: true }).json({ //send the user a cookie
             success: true,
-            message: 'Logged in successfully',
-            userEmail: user.email
+            message: 'Logged in successfully'
         })
     } catch(error) {
         console.log(error.message);
