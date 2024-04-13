@@ -7,39 +7,38 @@ const { cookieExtractor } = require('../utils/index');
 
 //user clicked the button to create a new meal
 exports.createMeal = async (req, res) => {
-    if (req.user) {
-        console.log(req.user);
-    } else {
+    let id, email;
+    if (req.user) { //sso
+        id = null;
+        email = req.user.emails[0].value;
+    } else { //email/password auth
         const token = cookieExtractor(req);
-        const { id, email } = verify(token, SECRET);
-        console.log(email);
+        const decoded = verify(token, SECRET); //pull user data from the cookie
+        id = decoded.id;
+        email = decoded.email;
     }
     const [mealName, values] = req.body;
     try {
-        /*const { rows } = await db.query(`SELECT user_id FROM users WHERE email = $1`, [userEmail]);
-        const userId = rows[0].user_id;
-        console.log(await db.query(`INSERT INTO meals (name, user_id) OUTPUT Inserted.id VALUES ($1, $2)`, [mealName, userId]));
-        *//*values.forEach(value => {
-            //await db.query(`INSERT INTO ingredients ()`)
-        });
-        let q = await db.query(`SELECT * FROM users WHERE email = $1`, [email]);
-        if (q.rows.length) { //validators/auth.js already ensured the user doesn't already have an email/password combination, so if the user has an email in the database, that means they previously signed up with sso
-            await db.query(`UPDATE users SET password = $1 WHERE email = $2`, [hashedPassword, email]); //user already exists with sso but not with password, so set their password in the database
-        } else {
-            await db.query(`INSERT INTO users (email, password) VALUES ($1, $2)`, [email, hashedPassword]); //user doesn't exist in the database, so add new record
+        let q;
+        if (!id) {
+            q = await db.query(`SELECT user_id FROM users WHERE email = $1`, [email]);
+            id = q.rows[0].user_id;
         }
-        q = await db.query(`SELECT * FROM users WHERE email = $1`, [email]);
-        const user_id = q.rows[0].user_id;
-        const payload = { 
-            id: user_id,
-            email: email 
-        };
-        const token = await sign(payload, SECRET, { expiresIn: 60 * 60 * 24 }); //create jwt token
-        return res.status(201).cookie('token', token, { httpOnly: true, secure: true }).json({ //create cookie
+        q = await db.query(`SELECT MAX(id) FROM meals GROUP BY id`);
+        let nextMealId;
+        if (q.rows[0]) {
+            nextMealId = Number(q.rows[0].max) + 1;
+        } else {
+            nextMealId = 1;
+        }
+        await db.query(`INSERT INTO meals (id, name, user_id) VALUES ($1, $2, $3)`, [nextMealId, mealName, id]);
+        values.forEach(async value => {
+            await db.query(`INSERT INTO ingredients (name, quantity, category, meal_id) VALUES ($1, $2, $3, $4)`, [value.ingredient, value.ingredientQuantity, value.ingredientCategory, nextMealId]);
+        });
+        return res.json({
             success: true,
-            message: 'The registration was successful',
-            userEmail: email
-        });*/
+            message: 'Meal creation was successful'
+        });
     } catch(error) {
         console.log(error.message);
         res.status(500).json({
