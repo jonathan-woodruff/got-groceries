@@ -5,23 +5,22 @@ import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchProtectedInfo, fetchProtectedInfoSSO, onLogout } from '../api/auth';
 import Layout from '../components/layout';
-import { unauthenticateUser, notSSO, assignUser } from '../redux/slices/authSlice';
+import { unauthenticateUser, notSSO } from '../redux/slices/authSlice';
 import { useNavigate } from 'react-router-dom';
 import { createMealValidation } from '../validation/forms';
 import { onCreateMeal } from '../api/inapp';
-import Button from '@mui/material/Button';
-import CssBaseline from '@mui/material/CssBaseline';
-import TextField from '@mui/material/TextField';
-import Checkbox from '@mui/material/Checkbox';
-import Link from '@mui/material/Link';
-import Grid from '@mui/material/Grid';
-import Box from '@mui/material/Box';
-import InputLabel from '@mui/material/InputLabel';
-import Select from '@mui/material/Select';
-import MenuItem from '@mui/material/MenuItem';
-import Typography from '@mui/material/Typography';
-import Container from '@mui/material/Container';
-import IconButton from '@mui/material/IconButton';
+import { logout } from '../utils/index';
+import {
+  Button,
+  CssBaseline,
+  TextField,
+  Box,
+  Select,
+  MenuItem,
+  Typography,
+  Container,
+  IconButton
+} from '@mui/material';
 import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 
@@ -39,17 +38,6 @@ const CreateMeal = () => {
     { ingredient: '', ingredientQuantity: '1', ingredientCategory: 'produce', used: false, showRemove: false }
   ]);
 
-  const logout = async () => {
-    try {
-      await onLogout();
-      dispatch(notSSO());
-      dispatch(unauthenticateUser());
-      localStorage.removeItem('isAuth');
-    } catch(error) {
-      console.log(error.response);
-    }
-  };
-
   const protectedInfo = async () => {
     try {
       const { data } = ssoLogin ? await fetchProtectedInfoSSO() : await fetchProtectedInfo();
@@ -57,6 +45,8 @@ const CreateMeal = () => {
       setLoading(false);
     } catch(error) {
       logout(); //if the user isn't property authenticated using the token on the cookie or there is some other issue, this will force logout thus not allowing a user to gain unauthenticated access
+      dispatch(notSSO());
+      dispatch(unauthenticateUser());
     }
   };
 

@@ -6,14 +6,16 @@ import { onRegistration } from '../api/auth';
 import { useDispatch, useSelector } from 'react-redux';
 import { authenticateUser, notSSO, assignUser } from '../redux/slices/authSlice';
 import GoogleButton from 'react-google-button'
-import Button from '@mui/material/Button';
-import CssBaseline from '@mui/material/CssBaseline';
-import TextField from '@mui/material/TextField';
-import Link from '@mui/material/Link';
-import Grid from '@mui/material/Grid';
-import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
-import Container from '@mui/material/Container';
+import {
+  Button,
+  CssBaseline,
+  TextField,
+  Link,
+  Grid,
+  Box,
+  Typography,
+  Container
+} from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 
 
