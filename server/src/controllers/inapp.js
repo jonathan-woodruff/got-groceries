@@ -5,29 +5,39 @@ const { SECRET } = require('../constants/index');
 const { verify } = require('jsonwebtoken');
 const { cookieExtractor } = require('../utils/index');
 
+const getUserIdAuth = req => {
+    const token = cookieExtractor(req);
+    const decoded = verify(token, SECRET); //pull user data from the cookie
+    return decoded.id
+};
+
+const getUserIdSSO = async req => {
+    const email = req.user.emails[0].value;
+    try {
+        const { rows } = await db.query(`SELECT user_id FROM users WHERE email = $1`, [email]);
+        return rows[0].user_id; //id
+    } catch(error) {
+        console.log(error.message);
+        res.status(500).json({
+            error: error.message
+        });
+    }
+};
+
 //user clicked the button to create a new meal
 exports.createMeal = async (req, res) => {
-    let id, email;
-    if (req.user) { //sso
-        id = null;
-        email = req.user.emails[0].value;
-    } else { //email/password auth
-        const token = cookieExtractor(req);
-        const decoded = verify(token, SECRET); //pull user data from the cookie
-        id = decoded.id;
-        email = decoded.email;
+    let id;
+    if (req.user) {
+        id = await getUserIdSSO(req);
+    } else {
+        id = getUserIdAuth(req);
     }
     const [mealName, values] = req.body;
     try {
-        let q;
-        if (!id) {
-            q = await db.query(`SELECT user_id FROM users WHERE email = $1`, [email]);
-            id = q.rows[0].user_id;
-        }
-        q = await db.query(`SELECT MAX(id) FROM meals GROUP BY id`);
+        const { rows } = await db.query(`SELECT MAX(id) FROM meals`);
         let nextMealId;
-        if (q.rows[0]) {
-            nextMealId = Number(q.rows[0].max) + 1;
+        if (rows[0]) {
+            nextMealId = Number(rows[0].max) + 1;
         } else {
             nextMealId = 1;
         }
@@ -44,5 +54,25 @@ exports.createMeal = async (req, res) => {
         res.status(500).json({
             error: error.message
         });
+    }
+};
+
+//get meals from the database to send back to the client
+exports.getMeals = async (req, res) => {
+    let id;
+    if (req.user) {
+        id = await getUserIdSSO(req);
+    } else {
+        id = getUserIdAuth(req);
+    }
+    try {
+        const { rows } = await db.query(`SELECT name FROM meals WHERE user_id = $1`, [id]);
+        return res.status(200).json({
+            success: true,
+            message: 'got meals',
+            meals: rows
+        });
+    } catch(error) {
+        console.log(error.message);
     }
 };
