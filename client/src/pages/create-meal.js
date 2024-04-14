@@ -3,7 +3,7 @@
 
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchProtectedInfo, fetchProtectedInfoSSO, onLogout } from '../api/auth';
+import { fetchProtectedInfo, fetchProtectedInfoSSO } from '../api/auth';
 import Layout from '../components/layout';
 import { unauthenticateUser, notSSO } from '../redux/slices/authSlice';
 import { useNavigate } from 'react-router-dom';
@@ -34,6 +34,8 @@ const CreateMeal = () => {
   const [loading, setLoading] = useState(true);
   const [protectedData, setProtectedData] = useState(null);
   const [mealName, setMealName] = useState('');
+  const [mealNameError, setMealNameError] = useState(false);
+  const [ingredientError, setIngredientError] = useState(false);
   const [values, setValues] = useState([
     { ingredient: '', ingredientQuantity: '1', ingredientCategory: 'produce', used: false, showRemove: false }
   ]);
@@ -58,9 +60,12 @@ const CreateMeal = () => {
     e.preventDefault();
     //validate input client side
     const message = createMealValidation(mealName, values);
-    if (message !== 'valid') {
-      alert(message);
+    if (message === 'valid') {
       return
+    } else if (message === 'meal name') {
+      setMealNameError(true);
+    } else if (message === 'ingredient') {
+      setIngredientError(true);
     }
     //save the meal to the database
     try {
@@ -76,6 +81,7 @@ const CreateMeal = () => {
     const data = [...values];
     data[index][e.target.name] = e.target.value;
     setValues(data);
+    if (e.target.name === 'ingredient') setIngredientError(false);
     //if the ingredients row is new/unchanged until now, flag it as changed and add a new row for the user
     if (!data[index]['used']) {
       data[index]['used'] = true;
@@ -92,6 +98,7 @@ const CreateMeal = () => {
 
   const handleMealNameChange = (e) => {
     setMealName(e.target.value);
+    setMealNameError(false);
   };
 
   return loading ? (
@@ -126,6 +133,8 @@ const CreateMeal = () => {
                   value={ mealName }
                   onChange={ (e) => handleMealNameChange(e) }
                   autoComplete="Meal Name"
+                  error={ mealNameError }
+                  helperText={ mealNameError ? 'Please enter a meal name' : '' }
                   autoFocus
                 />
                 <Box sx={{ display: 'flex', alignItems: 'center'}}>
@@ -142,6 +151,8 @@ const CreateMeal = () => {
                                 value={ values[index].ingredient }
                                 onChange={ handleChange(index) }
                                 autoComplete="Ingredient"
+                                error={ ingredientError }
+                                helperText={ ingredientError ? 'Please enter at least one ingredient' : '' }
                                 sx={{ mr: 1 }}
                               />
                               <TextField 

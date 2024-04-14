@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import Layout from '../components/layout';
 import { onLogin } from '../api/auth';
 import { useDispatch, useSelector } from 'react-redux';
-import { authenticateUser, notSSO, assignUser } from '../redux/slices/authSlice';
+import { authenticateUser, notSSO } from '../redux/slices/authSlice';
 import GoogleButton from 'react-google-button'
 import {
   Button,

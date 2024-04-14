@@ -3,9 +3,9 @@
 
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchProtectedInfo, fetchProtectedInfoSSO, onLogout } from '../api/auth';
+import { fetchProtectedInfo, fetchProtectedInfoSSO } from '../api/auth';
 import Layout from '../components/layout';
-import { unauthenticateUser, notSSO, assignUser } from '../redux/slices/authSlice';
+import { unauthenticateUser, notSSO } from '../redux/slices/authSlice';
 import { useNavigate } from 'react-router-dom';
 import { logout } from '../utils/index';
 import { Button, CssBaseline, Box, Container } from '@mui/material';
