@@ -60,19 +60,18 @@ const CreateMeal = () => {
     e.preventDefault();
     //validate input client side
     const message = createMealValidation(mealName, values);
-    if (message === 'valid') {
-      return
-    } else if (message === 'meal name') {
+    if (message === 'meal name') {
       setMealNameError(true);
     } else if (message === 'ingredient') {
       setIngredientError(true);
-    }
-    //save the meal to the database
-    try {
-      await onCreateMeal(mealName, values);
-      navigate('/meals');
-    } catch(error) {
-      console.log(error.response.data.errors[0].msg); //error from axios
+    } else { //message === 'valid'
+      //save the meal to the database
+      try {
+        await onCreateMeal(mealName, values);
+        navigate('/meals');
+      } catch(error) {
+        console.log(error.response.data.errors[0].msg); //error from axios
+      }
     }
   };
 
@@ -167,8 +166,6 @@ const CreateMeal = () => {
                                 InputProps={{ inputProps: { min: 1 } }}                               
                                 sx={{ mr: 1, width: '100px' }}
                               />
-                            </Box>
-                            <Box sx={{ mt: 1, flexDirection: 'column' }}>
                               <Select
                                   labelId="category"
                                   id="ingredientCategory"
@@ -176,25 +173,24 @@ const CreateMeal = () => {
                                   value={ values[index].ingredientCategory }
                                   label="Category"
                                   onChange={ handleChange(index) }
+                                  sx={{ mt: 2 }}
                               >
                                   <MenuItem value="dairy">Dairy</MenuItem>
                                   <MenuItem value="meat">Meat</MenuItem>
                                   <MenuItem value="produce">Produce</MenuItem>
                                   <MenuItem value=""></MenuItem>
                               </Select>
-                            </Box>
-                            <Box sx={{ mt: 2 }}>
-                            { values[index].showRemove ?
-                              <IconButton 
-                                aria-label="remove" 
-                                color="primary" 
-                                onClick={ handleRemove(index) }
-                                sx={{ ml: 2 }}
-                              >
-                                <RemoveCircleIcon />
-                              </IconButton> :
-                              <></>
-                            }
+                              { values[index].showRemove ?
+                                <IconButton 
+                                  aria-label="remove" 
+                                  color="primary" 
+                                  onClick={ handleRemove(index) }
+                                  sx={{ ml: 2 }}
+                                >
+                                  <RemoveCircleIcon />
+                                </IconButton> :
+                                <></>
+                              }
                             </Box>
                           </Box>
                         )
