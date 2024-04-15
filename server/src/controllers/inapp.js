@@ -66,7 +66,7 @@ exports.getMeals = async (req, res) => {
         id = getUserIdAuth(req);
     }
     try {
-        const { rows } = await db.query(`SELECT name FROM meals WHERE user_id = $1`, [id]);
+        const { rows } = await db.query(`SELECT name FROM meals WHERE user_id = $1 ORDER BY name`, [id]);
         return res.status(200).json({
             success: true,
             message: 'got meals',
