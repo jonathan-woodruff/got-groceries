@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchProtectedInfo, fetchProtectedInfoSSO } from '../api/auth';
 import { fetchMeals } from '../api/inapp';
 import { unauthenticateUser, notSSO } from '../redux/slices/authSlice';
+import { addMeal, removeMeal } from '../redux/slices/mealsSlice';
 import Layout from '../components/layout';
 import { useNavigate } from 'react-router-dom';
 import { logout } from '../utils/index';
@@ -58,6 +59,7 @@ const Meals = () => {
     const selectedMeal = meals.splice(index, 1);
     setMealsOptions(meals);
     setSelectedMeals([...selectedMeals, selectedMeal[0]]);
+    dispatch(addMeal({ meal: selectedMeal[0].name }))
   };
 
   const handleDeselect = index => (e) => {
@@ -85,13 +87,6 @@ const Meals = () => {
                 alignItems: 'center',
               }}
             >
-              <Button 
-                onClick={ handleClick }
-                variant="contained"
-                sx={{ mt: 3, mb: 2, width: '250px' }}
-              >
-                + Create New Meal
-              </Button>
               <Typography component="h2" variant="h6" sx={{ mt: 3 }}>
                 Add to Meals List
               </Typography>
@@ -104,6 +99,9 @@ const Meals = () => {
                   )
                 })
                 }
+                <Button onClick={ handleClick } variant="contained" sx={{ m: 1, width: '200px' }}>
+                  + Create New Meal
+                </Button>
               </Box>
               <Typography component="h2" variant="h6" sx={{ mt: 3 }}>
                 Meals List
@@ -118,9 +116,12 @@ const Meals = () => {
                 })
                 }
               </Box>
-            </ Box>
-          </ Container>
-        </ ThemeProvider >
+              <Button variant="contained" sx={{ mt: 3 }}>
+                Continue
+              </Button>
+            </Box>
+          </Container>
+        </ThemeProvider >
       </Layout>
     </div>
   )
