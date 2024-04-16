@@ -12,3 +12,15 @@ export async function onCreateMeal(mealData) {
 export async function fetchMeals() {
     return await axios.get(`${serverURL}/inapp/meals`);
 };
+
+export async function onDeleteMeal(mealId) {
+    return await axios.delete(`${serverURL}/inapp/meals/manage-meals/${mealId}`);
+};
+
+export async function getMealIngredients(mealId) {
+    return await axios.get(`${serverURL}/inapp/meals/edit-meal/${mealId}`)
+};
+
+export async function onEditMeal(mealData) {
+    return await axios.put(`${serverURL}/inapp/meals/edit-meal`, mealData)
+};

@@ -12,14 +12,14 @@ export const mealsSlice = createSlice({
     reducers: {
         addMeal: (state, action) => {
             const meal = action.payload.meal;
-            state.selectedMealsList.append(meal);
+            state.selectedMealsList.push(meal);
         },
         removeMeal: (state, action) => {
             const meal = action.payload.meal;
             const index = state.selectedMealsList.findIndex(mealName => {
                 return mealName === meal;
             });
-            state.selectedMealsList.splice(index, 1);
+            if (index !== -1) state.selectedMealsList.splice(index, 1);
         }
     }
 });

@@ -2,7 +2,10 @@
 
 exports.cleanCreateMeal = async (req, res, next) => {
     const { mealName, values } = req.body;
-    const cleanedValues = values.filter(value => value.ingredient); //remove values where the user didn't enter anything into the ingredient field
-    req.body = [mealName, cleanedValues];
+    const cleanedValues = values.filter(value => value.name); //remove values where the user didn't enter anything into the ingredient/name field
+    req.body = {
+        mealName: mealName,
+        values: cleanedValues
+    };
     next();
 };

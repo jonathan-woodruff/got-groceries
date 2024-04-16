@@ -12,6 +12,7 @@ import { useNavigate } from 'react-router-dom';
 import { logout } from '../utils/index';
 import { Button, CssBaseline, Box, Container, Typography, Slide } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import SettingsIcon from '@mui/icons-material/Settings';
 
 
 const defaultTheme = createTheme();
@@ -59,6 +60,7 @@ const Meals = () => {
     const mealOption = selected.splice(index, 1);
     setSelectedMeals(selected);
     setMealsOptions([...mealsOptions, mealOption[0]]);
+    dispatch(removeMeal({ meal: mealOption[0].name }))
   };
 
   return loading ? (
@@ -85,23 +87,26 @@ const Meals = () => {
               <Box sx={{ border: '1px solid #676767', width: '100%', minHeight: '200px', mt: 1 }}>
                 { mealsOptions.map((input, index) => {
                   return (
-                    <Button key={index} variant="outlined" sx={{ m: 1 }} onClick={ handleSelect(index) }>
+                    <Button key={index} variant="outlined" sx={{ m: 1, textTransform: 'none' }} onClick={ handleSelect(index) }>
                       { mealsOptions[index].name }
                     </Button>
                   )
                 })
                 }
-                <Button onClick={ handleClick } variant="contained" sx={{ m: 1, width: '200px' }}>
+                <Button onClick={ handleClick } variant="contained" sx={{ m: 1 }}>
                   + Create New Meal
+                </Button>
+                <Button variant="contained" startIcon={ <SettingsIcon /> } sx={{ m: 1, backgroundColor: '#353535' }}>
+                  Manage My Meals
                 </Button>
               </Box>
               <Typography component="h2" variant="h6" sx={{ mt: 3 }}>
                 Meals List
               </Typography>
-              <Box sx={{ border: '1px solid #676767', width: '100%', minHeight: '200px', mt: 1 }}>
+              <Box sx={{ border: '1px dashed #676767', width: '100%', minHeight: '200px', mt: 1 }}>
                 { selectedMeals.map((input, index) => {
                   return (
-                    <Button key={index} variant="outlined" sx={{ m: 1 }} onClick={ handleDeselect(index) }>
+                    <Button key={index} variant="outlined" sx={{ m: 1, textTransform: 'none' }} onClick={ handleDeselect(index) }>
                       { selectedMeals[index].name }
                     </Button>
                   )

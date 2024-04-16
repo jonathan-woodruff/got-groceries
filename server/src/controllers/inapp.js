@@ -43,7 +43,7 @@ exports.createMeal = async (req, res) => {
         }
         await db.query(`INSERT INTO meals (id, name, user_id) VALUES ($1, $2, $3)`, [nextMealId, mealName, id]);
         values.forEach(async value => {
-            await db.query(`INSERT INTO ingredients (name, quantity, category, meal_id) VALUES ($1, $2, $3, $4)`, [value.ingredient, value.ingredientQuantity, value.ingredientCategory, nextMealId]);
+            await db.query(`INSERT INTO ingredients (name, quantity, category, meal_id) VALUES ($1, $2, $3, $4)`, [value.name, value.quantity, value.category, nextMealId]);
         });
         return res.json({
             success: true,
@@ -66,7 +66,7 @@ exports.getMeals = async (req, res) => {
         id = getUserIdAuth(req);
     }
     try {
-        const { rows } = await db.query(`SELECT name FROM meals WHERE user_id = $1 ORDER BY name`, [id]);
+        const { rows } = await db.query(`SELECT id, name FROM meals WHERE user_id = $1 ORDER BY name`, [id]);
         return res.status(200).json({
             success: true,
             message: 'got meals',
@@ -75,4 +75,43 @@ exports.getMeals = async (req, res) => {
     } catch(error) {
         console.log(error.message);
     }
+};
+
+//delete a meal from the database
+exports.deleteMeal = async (req, res) => {
+    const mealId = req.params.id;
+    //delete from the meals database
+    try {
+        let q;
+        q = await db.query(`DELETE FROM ingredients WHERE meal_id = $1`, [mealId]);
+        q = await db.query(`DELETE FROM meals WHERE id = $1`, [mealId]);
+        return res.status(200).json({
+            success: true,
+            message: 'deleted meal'
+        });
+    } catch(error) {
+        console.log(error.message);
+    }
+};
+
+//get all the ingredients for a specified meal
+exports.getMealIngredients = async (req, res) => {
+    const mealId = req.params.id;
+    try {
+        const { rows } = await db.query(`SELECT name, CAST(quantity AS varchar), category FROM ingredients WHERE meal_id = $1`, [mealId]);
+        const q = await db.query(`SELECT name FROM meals WHERE id = $1`, [mealId]);
+        return res.status(200).json({
+            success: true,
+            message: 'got meal ingredients',
+            ingredients: rows,
+            mealName: q.rows[0].name
+        });
+    } catch(error) {
+        console.log(error.message);
+    }
+};
+
+//update the meal according to the user edits
+exports.editMeal = async (req, res) => {
+    
 };
