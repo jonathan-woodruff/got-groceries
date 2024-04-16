@@ -36,6 +36,8 @@ const CreateMeal = () => {
   const [mealName, setMealName] = useState('');
   const [mealNameError, setMealNameError] = useState(false);
   const [ingredientError, setIngredientError] = useState(false);
+  const [mealNameErrorMessage, setMealNameErrorMessage] = useState('');
+  const [ingredientErrorMessage, setIngredientErrorMessage] = useState('');
   const [values, setValues] = useState([
     { ingredient: '', ingredientQuantity: '1', ingredientCategory: 'produce', used: false, showRemove: false }
   ]);
@@ -62,15 +64,21 @@ const CreateMeal = () => {
     const message = createMealValidation(mealName, values);
     if (message === 'meal name') {
       setMealNameError(true);
+      setMealNameErrorMessage('Please enter a meal name');
     } else if (message === 'ingredient') {
       setIngredientError(true);
+      setIngredientErrorMessage('Please enter at least one ingredient');
     } else { //message === 'valid'
       //save the meal to the database
       try {
-        await onCreateMeal(mealName, values);
+        await onCreateMeal({
+          mealName: mealName, 
+          values: values
+        });
         navigate('/meals');
       } catch(error) {
-        console.log(error.response.data.errors[0].msg); //error from axios
+        setMealNameError(true);
+        setMealNameErrorMessage(error.response.data.errors[0].msg); //error from axios
       }
     }
   };
@@ -80,7 +88,10 @@ const CreateMeal = () => {
     const data = [...values];
     data[index][e.target.name] = e.target.value;
     setValues(data);
-    if (e.target.name === 'ingredient') setIngredientError(false);
+    if (e.target.name === 'ingredient') {
+      setIngredientError(false);
+      setIngredientErrorMessage('');
+    }
     //if the ingredients row is new/unchanged until now, flag it as changed and add a new row for the user
     if (!data[index]['used']) {
       data[index]['used'] = true;
@@ -98,6 +109,7 @@ const CreateMeal = () => {
   const handleMealNameChange = (e) => {
     setMealName(e.target.value);
     setMealNameError(false);
+    setMealNameErrorMessage('');
   };
 
   return loading ? (
@@ -133,7 +145,7 @@ const CreateMeal = () => {
                   onChange={ (e) => handleMealNameChange(e) }
                   autoComplete="Meal Name"
                   error={ mealNameError }
-                  helperText={ mealNameError ? 'Please enter a meal name' : '' }
+                  helperText={ mealNameErrorMessage }
                   autoFocus
                 />
                 <Box sx={{ display: 'flex', alignItems: 'center'}}>
@@ -151,7 +163,7 @@ const CreateMeal = () => {
                                 onChange={ handleChange(index) }
                                 autoComplete="Ingredient"
                                 error={ ingredientError }
-                                helperText={ ingredientError ? 'Please enter at least one ingredient' : '' }
+                                helperText={ ingredientErrorMessage }
                                 sx={{ mr: 1 }}
                               />
                               <TextField 

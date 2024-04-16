@@ -32,7 +32,7 @@ exports.createMeal = async (req, res) => {
     } else {
         id = getUserIdAuth(req);
     }
-    const [mealName, values] = req.body;
+    const { mealName, values } = req.body;
     try {
         const { rows } = await db.query(`SELECT MAX(id) FROM meals`);
         let nextMealId;

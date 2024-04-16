@@ -14,7 +14,7 @@ export const mealsSlice = createSlice({
             const meal = action.payload.meal;
             state.selectedMealsList.append(meal);
         },
-        removeMeal: (state,action) => {
+        removeMeal: (state, action) => {
             const meal = action.payload.meal;
             const index = state.selectedMealsList.findIndex(mealName => {
                 return mealName === meal;

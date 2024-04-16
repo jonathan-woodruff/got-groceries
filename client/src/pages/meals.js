@@ -25,25 +25,17 @@ const Meals = () => {
   const [mealsOptions, setMealsOptions] = useState([]);
   const [selectedMeals, setSelectedMeals] = useState([]);
 
-  const protectedInfo = async () => {
+
+  const getMeals = async() => {
     try {
-      const { data } = ssoLogin ? await fetchProtectedInfoSSO() : await fetchProtectedInfo();
-      setProtectedData(data.info);
+      const { data } = await fetchMeals();
+      setMealsOptions(data.meals);
       setLoading(false);
     } catch(error) {
       logout(); //if the user isn't property authenticated using the token on the cookie or there is some other issue, this will force logout thus not allowing a user to gain unauthenticated access
       dispatch(notSSO());
       dispatch(unauthenticateUser());
     }
-  };
-
-  useEffect(() => {
-    protectedInfo();
-  }, []);
-
-  const getMeals = async() => {
-    const { data } = await fetchMeals();
-    setMealsOptions(data.meals);
   };
 
   useEffect(() => {
@@ -88,9 +80,9 @@ const Meals = () => {
               }}
             >
               <Typography component="h2" variant="h6" sx={{ mt: 3 }}>
-                Add to Meals List
+                Select Meals
               </Typography>
-              <Box sx={{ border: '1px solid black', width: '100%', minHeight: '200px', mt: 1 }}>
+              <Box sx={{ border: '1px solid #676767', width: '100%', minHeight: '200px', mt: 1 }}>
                 { mealsOptions.map((input, index) => {
                   return (
                     <Button key={index} variant="outlined" sx={{ m: 1 }} onClick={ handleSelect(index) }>
@@ -106,7 +98,7 @@ const Meals = () => {
               <Typography component="h2" variant="h6" sx={{ mt: 3 }}>
                 Meals List
               </Typography>
-              <Box sx={{ border: '1px solid black', width: '100%', minHeight: '200px', mt: 1 }}>
+              <Box sx={{ border: '1px solid #676767', width: '100%', minHeight: '200px', mt: 1 }}>
                 { selectedMeals.map((input, index) => {
                   return (
                     <Button key={index} variant="outlined" sx={{ m: 1 }} onClick={ handleDeselect(index) }>
