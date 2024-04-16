@@ -24,3 +24,7 @@ export async function getMealIngredients(mealId) {
 export async function onEditMeal(mealData) {
     return await axios.put(`${serverURL}/inapp/meals/edit-meal`, mealData)
 };
+
+export async function onEditMealUnchangedName(mealData) {
+    return await axios.put(`${serverURL}/inapp/meals/edit-meal/unchanged`, mealData)
+};

@@ -113,5 +113,19 @@ exports.getMealIngredients = async (req, res) => {
 
 //update the meal according to the user edits
 exports.editMeal = async (req, res) => {
-    
+    const { mealId, mealName, values } = req.body;
+    let q;
+    try {
+        q = await db.query(`DELETE FROM ingredients WHERE meal_id = $1`, [mealId]);
+        values.forEach(async value => {
+            await db.query(`INSERT INTO ingredients (name, quantity, category, meal_id) VALUES ($1, $2, $3, $4)`, [value.name, value.quantity, value.category, mealId]);
+        });
+        q = await db.query(`UPDATE meals SET name = $1 WHERE id = $2`, [mealName, mealId]);
+        return res.status(200).json({
+            success: true,
+            message: 'edited meal'
+        });
+    } catch(error) {
+        console.log(error);
+    }
 };

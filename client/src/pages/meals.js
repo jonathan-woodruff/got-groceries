@@ -8,7 +8,7 @@ import { fetchMeals } from '../api/inapp';
 import { unauthenticateUser, notSSO } from '../redux/slices/authSlice';
 import { addMeal, removeMeal } from '../redux/slices/mealsSlice';
 import Layout from '../components/layout';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, createSearchParams } from 'react-router-dom';
 import { logout } from '../utils/index';
 import { Button, CssBaseline, Box, Container, Typography, Slide } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
@@ -45,6 +45,14 @@ const Meals = () => {
 
   const handleClick = () => {
     navigate('/meals/create-meal')
+  };
+
+  const handleManage = () => {
+    const searchQuery = createSearchParams({ return: 'meals' });
+    navigate({
+      pathname: '/meals/manage-meals',
+      search: `?${searchQuery}`
+    });
   };
 
   const handleSelect = index => (e) => {
@@ -96,7 +104,7 @@ const Meals = () => {
                 <Button onClick={ handleClick } variant="contained" sx={{ m: 1 }}>
                   + Create New Meal
                 </Button>
-                <Button variant="contained" startIcon={ <SettingsIcon /> } sx={{ m: 1, backgroundColor: '#353535' }}>
+                <Button onClick={ handleManage } variant="contained" startIcon={ <SettingsIcon /> } color="grey" sx={{ m: 1 }}>
                   Manage My Meals
                 </Button>
               </Box>

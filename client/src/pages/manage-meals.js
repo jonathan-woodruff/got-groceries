@@ -48,7 +48,11 @@ const ManageMeals = () => {
   }, []);
 
   const handleClick = () => {
-    navigate(-1) //previous page
+    const urlParams = new URLSearchParams(window.location.search);
+    const returnLocation = urlParams.get('return');
+    if (returnLocation === 'meals') {
+        navigate('/meals');
+    }
   };
 
   const handleDelete = index => async (e) => {

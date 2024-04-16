@@ -3,6 +3,9 @@
 export const createMealValidation = (mealName, values) => {
     if (!mealName) return ['meal name', null]; //empty meal name
     if (values.findIndex((row) => row.name) === -1) return ['ingredient', null]; //no ingredients filled out
+    //check if quantity is empty
+    const qIndex = values.findIndex((row) => !row.quantity);
+    if (qIndex !== -1) return ['quantity', qIndex]; 
     //check if any ingredient names are duplicate
     const duplicatesArray = [];
     let foundIndex = false;

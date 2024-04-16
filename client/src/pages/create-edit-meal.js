@@ -7,7 +7,7 @@ import Layout from '../components/layout';
 import { unauthenticateUser, notSSO } from '../redux/slices/authSlice';
 import { useNavigate } from 'react-router-dom';
 import { createMealValidation } from '../validation/forms';
-import { onCreateMeal, getMealIngredients, onEditMeal } from '../api/inapp';
+import { onCreateMeal, getMealIngredients, onEditMeal, onEditMealUnchangedName } from '../api/inapp';
 import { logout } from '../utils/index';
 import {
   Button,
@@ -35,11 +35,14 @@ const CreateEditMeal = (props) => {
   const [protectedData, setProtectedData] = useState(null);
   const [mealName, setMealName] = useState('');
   const [mealNameError, setMealNameError] = useState(false);
+  const [startingMealName, setStartingMealName] = useState('');
   const [ingredientError, setIngredientError] = useState(false);
   const [ingredientIndexError, setIngredientIndexError] = useState(null);
   const [ingredientIndexErrorMessage, setIngredientIndexErrorMessage] = useState('');
   const [mealNameErrorMessage, setMealNameErrorMessage] = useState('');
   const [ingredientErrorMessage, setIngredientErrorMessage] = useState('');
+  const [quantityError, setQuantityError] = useState(null);
+  const [quantityErrorMessage, setQuantityErrorMessage] = useState('');
   const [values, setValues] = useState([
     { name: '', quantity: '1', category: 'produce', used: false, showRemove: false }
   ]);
@@ -61,6 +64,7 @@ const CreateEditMeal = (props) => {
                 mealIngredients.push({ name: '', quantity: '1', category: 'produce', used: false, showRemove: false}); //add blank row
                 setValues(mealIngredients);
                 setMealName(mealName);
+                setStartingMealName(mealName);
                 setLoading(false);
             } catch(error) {
                 console.log(error);
@@ -82,6 +86,9 @@ const CreateEditMeal = (props) => {
     } else if (message === 'ingredient') {
       setIngredientError(true);
       setIngredientErrorMessage('Please enter at least one ingredient');
+    } else if (message === 'quantity') {
+        setQuantityError(indexData);
+        setQuantityErrorMessage('Enter a quantity');
     } else if (message === 'ingredient index') {
         setIngredientIndexError(indexData);
         setIngredientIndexErrorMessage('Duplicate ingredient name');
@@ -91,11 +98,18 @@ const CreateEditMeal = (props) => {
         if (isEditing) {
             const urlParams = new URLSearchParams(window.location.search);
             const mealId = urlParams.get('id');
-            await onEditMeal({
-                mealId: mealId,
-                mealName: mealName,
-                values: values
-            });
+            startingMealName.toLowerCase() === mealName.toLowerCase() ?
+                await onEditMealUnchangedName({ //don't bother checking for name duplicate
+                    mealId: mealId,
+                    mealName: mealName,
+                    values: values
+                }) :
+                await onEditMeal({ //check for name duplicate
+                    mealId: mealId,
+                    mealName: mealName,
+                    values: values
+                });
+            navigate(-1);
         } else {
             await onCreateMeal({
                 mealName: mealName, 
@@ -120,6 +134,9 @@ const CreateEditMeal = (props) => {
       setIngredientErrorMessage('');
       setIngredientIndexError(null);
       setIngredientIndexErrorMessage('');
+    } else if (e.target.name === 'quantity' && index === quantityError) {
+        setQuantityError(null);
+        setQuantityErrorMessage('');
     }
     //if the ingredients row is new/unchanged until now, flag it as changed and add a new row for the user
     if (!data[index]['used']) {
@@ -206,8 +223,10 @@ const CreateEditMeal = (props) => {
                                 onChange={ handleChange(index) }
                                 autoComplete="Quantity" 
                                 type="number"
-                                InputProps={{ inputProps: { min: 1 } }}                               
-                                sx={{ mr: 1, width: '100px' }}
+                                InputProps={{ inputProps: { min: 1 } }}   
+                                error={ quantityError === index ? true: false }
+                                helperText={ quantityError === index ? quantityErrorMessage : '' }                            
+                                sx={{ mr: 1, width: '80px' }}
                               />
                               <Select
                                   labelId="category"
@@ -216,7 +235,7 @@ const CreateEditMeal = (props) => {
                                   value={ values[index].category }
                                   label="Category"
                                   onChange={ handleChange(index) }
-                                  sx={{ mt: 2 }}
+                                  sx={{ mt: 2, width: '150px' }}
                               >
                                   <MenuItem value="dairy">Dairy</MenuItem>
                                   <MenuItem value="meat">Meat</MenuItem>
@@ -224,7 +243,7 @@ const CreateEditMeal = (props) => {
                                   <MenuItem value=""></MenuItem>
                               </Select>
                               { values[index].showRemove ?
-                                <IconButton 
+                                <IconButton
                                   aria-label="remove" 
                                   color="primary" 
                                   onClick={ handleRemove(index) }

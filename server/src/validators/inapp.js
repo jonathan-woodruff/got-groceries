@@ -12,6 +12,15 @@ const checkMealNameDuplicate = check('mealName').custom(async (value) => {
     }
 });
 
+const checkEditedName = check('mealName').custom(async (value) => {
+    const { rows } = await db.query(`SELECT name FROM meals WHERE LOWER(name) = LOWER($1)`, [value])
+
+    if (rows.length) {
+        throw new Error(`You already created a meal named ${value}`);
+    }
+});
+
 module.exports = {
-    createMealValidation: [checkMealNameDuplicate]
+    createMealValidation: [checkMealNameDuplicate],
+    editMealValidation: [checkEditedName]
 };
