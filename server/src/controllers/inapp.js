@@ -149,3 +149,24 @@ exports.getIngredients = async (req, res) => {
         console.log(error.message);
     }
 };
+
+//save the user's grocery list
+exports.createGroceryList = async (req, res) => {
+    let id;
+    if (req.user) {
+        id = await getUserIdSSO(req);
+    } else {
+        id = getUserIdAuth(req);
+    }
+    try {
+        return res.json({
+            success: true,
+            message: 'Created grocery list'
+        });
+    } catch(error) {
+        console.log(error.message);
+        res.status(500).json({
+            error: error.message
+        });
+    }
+};

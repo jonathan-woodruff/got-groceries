@@ -32,3 +32,7 @@ export async function onEditMealUnchangedName(mealData) {
 export async function fetchIngredients() {
     return await axios.get(`${serverURL}/inapp/ingredients`);
 };
+
+export async function onFinish(ingredientsList) {
+    return await axios.post(`${serverURL}/inapp/ingredients`, ingredientsList);
+};
