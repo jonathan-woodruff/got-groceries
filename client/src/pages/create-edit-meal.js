@@ -44,7 +44,7 @@ const CreateEditMeal = (props) => {
   const [quantityError, setQuantityError] = useState(null);
   const [quantityErrorMessage, setQuantityErrorMessage] = useState('');
   const [values, setValues] = useState([
-    { name: '', quantity: '1', category: 'produce', used: false, showRemove: false }
+    { name: '', quantity: '1', category: 'Produce', used: false, showRemove: false }
   ]);
 
   useEffect(() => {
@@ -61,13 +61,14 @@ const CreateEditMeal = (props) => {
                     ingredientRow['used'] = true;
                     index === 0 ? ingredientRow['showRemove'] = false : ingredientRow['showRemove'] = true;
                 });
-                mealIngredients.push({ name: '', quantity: '1', category: 'produce', used: false, showRemove: false}); //add blank row
+                mealIngredients.push({ name: '', quantity: '1', category: 'Produce', used: false, showRemove: false}); //add blank row
                 setValues(mealIngredients);
                 setMealName(mealName);
                 setStartingMealName(mealName);
                 setLoading(false);
             } catch(error) {
                 console.log(error);
+                navigate(-1);
             }
         } else{
             setLoading(false);
@@ -142,7 +143,7 @@ const CreateEditMeal = (props) => {
     if (!data[index]['used']) {
       data[index]['used'] = true;
       if (index !== 0) data[index]['showRemove'] = true;
-      setValues([...values, { name: '', quantity: '1', category: 'produce', used: false, showRemove: false}]);
+      setValues([...values, { name: '', quantity: '1', category: 'Produce', used: false, showRemove: false}]);
     }
   };
 
@@ -240,7 +241,7 @@ const CreateEditMeal = (props) => {
                                   <MenuItem value="Baking">Baking</MenuItem>
                                   <MenuItem value="Bathroom">Bathroom</MenuItem>
                                   <MenuItem value="Bread">Bread</MenuItem>
-                                  <MenuItem value="Breakfast">Dairy</MenuItem>
+                                  <MenuItem value="Breakfast">Breakfast</MenuItem>
                                   <MenuItem value="Candy">Candy</MenuItem>
                                   <MenuItem value="Canned">Canned</MenuItem>
                                   <MenuItem value="Dairy">Dairy</MenuItem>
@@ -252,7 +253,6 @@ const CreateEditMeal = (props) => {
                                   <MenuItem value="Produce">Produce</MenuItem>
                                   <MenuItem value="School">School</MenuItem>
                                   <MenuItem value="Snacks">Snacks</MenuItem>
-                                  <MenuItem value=""></MenuItem>
                               </Select>
                               { values[index].showRemove ?
                                 <IconButton

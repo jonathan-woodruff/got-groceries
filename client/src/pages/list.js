@@ -168,7 +168,7 @@ const List = () => {
                   <Button 
                     key={index} 
                     onClick={ handleSelect(index) } 
-                    variant="contained" 
+                    variant={ groceryList[index].isFinished ? "contained" : "outlined" }
                     fullWidth 
                     endIcon={ groceryList[index].isDropped ? <KeyboardArrowDownIcon /> : <KeyboardArrowRightIcon /> } 
                     color={ groceryList[index].isFinished ? "success" : "primary" }

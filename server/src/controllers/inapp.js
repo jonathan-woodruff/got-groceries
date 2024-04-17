@@ -1,28 +1,7 @@
 /* in-app middlewares to run upon the server getting requests */
 
 const db = require('../db');
-const { SECRET } = require('../constants/index');
-const { verify } = require('jsonwebtoken');
-const { cookieExtractor } = require('../utils/index');
-
-const getUserIdAuth = req => {
-    const token = cookieExtractor(req);
-    const decoded = verify(token, SECRET); //pull user data from the cookie
-    return decoded.id
-};
-
-const getUserIdSSO = async req => {
-    const email = req.user.emails[0].value;
-    try {
-        const { rows } = await db.query(`SELECT user_id FROM users WHERE email = $1`, [email]);
-        return rows[0].user_id; //id
-    } catch(error) {
-        console.log(error.message);
-        res.status(500).json({
-            error: error.message
-        });
-    }
-};
+const { getUserIdAuth, getUserIdSSO } = require('../utils/id');
 
 //user clicked the button to create a new meal
 exports.createMeal = async (req, res) => {
@@ -96,15 +75,26 @@ exports.deleteMeal = async (req, res) => {
 
 //get all the ingredients for a specified meal
 exports.getMealIngredients = async (req, res) => {
+    let id;
+    if (req.user) {
+        id = await getUserIdSSO(req);
+    } else {
+        id = getUserIdAuth(req);
+    }
     const mealId = req.params.id;
     try {
-        const { rows } = await db.query(`SELECT name, CAST(quantity AS varchar), category FROM ingredients WHERE meal_id = $1`, [mealId]);
-        const q = await db.query(`SELECT name FROM meals WHERE id = $1`, [mealId]);
+        const { rows } = await db.query(`SELECT ingredients.name, CAST(ingredients.quantity AS varchar), ingredients.category, meals.name AS mealname FROM meals INNER JOIN ingredients ON meals.id = ingredients.meal_id WHERE meals.id = $1 AND meals.user_id = $2`, [mealId, id]);
+        if (!rows.length) {
+            return res.status(401).json({
+                success: false,
+                message: 'not authorized'
+            })
+        }
         return res.status(200).json({
             success: true,
             message: 'got meal ingredients',
             ingredients: rows,
-            mealName: q.rows[0].name
+            mealName: rows[0].mealname
         });
     } catch(error) {
         console.log(error.message);
