@@ -16,8 +16,8 @@ export const mealsSlice = createSlice({
         },
         removeMeal: (state, action) => {
             const meal = action.payload.meal;
-            const index = state.selectedMealsList.findIndex(mealName => {
-                return mealName === meal;
+            const index = state.selectedMealsList.findIndex(mealObj => {
+                return mealObj === meal;
             });
             if (index !== -1) state.selectedMealsList.splice(index, 1);
         }

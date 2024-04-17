@@ -129,3 +129,23 @@ exports.editMeal = async (req, res) => {
         console.log(error);
     }
 };
+
+//get meals from the database to send back to the client
+exports.getIngredients = async (req, res) => {
+    let id;
+    if (req.user) {
+        id = await getUserIdSSO(req);
+    } else {
+        id = getUserIdAuth(req);
+    }
+    try {
+        const { rows } = await db.query(`SELECT ingredients.id, ingredients.name FROM meals INNER JOIN ingredients ON meals.id = ingredients.meal_id WHERE meals.user_id = $1 ORDER BY meals.name, ingredients.name`, [id]);
+        return res.status(200).json({
+            success: true,
+            message: 'got meals',
+            meals: rows
+        });
+    } catch(error) {
+        console.log(error.message);
+    }
+};

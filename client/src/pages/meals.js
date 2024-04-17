@@ -3,14 +3,13 @@
 
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchProtectedInfo, fetchProtectedInfoSSO } from '../api/auth';
 import { fetchMeals } from '../api/inapp';
 import { unauthenticateUser, notSSO } from '../redux/slices/authSlice';
 import { addMeal, removeMeal } from '../redux/slices/mealsSlice';
 import Layout from '../components/layout';
 import { useNavigate, createSearchParams } from 'react-router-dom';
 import { logout } from '../utils/index';
-import { Button, CssBaseline, Box, Container, Typography, Slide } from '@mui/material';
+import { Button, CssBaseline, Box, Container, Typography } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import SettingsIcon from '@mui/icons-material/Settings';
 
@@ -20,11 +19,11 @@ const defaultTheme = createTheme();
 const Meals = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { ssoLogin } = useSelector(state => state.auth);
+  const { selectedMealsList } = useSelector(state => state.meals);
   const [loading, setLoading] = useState(true);
-  const [protectedData, setProtectedData] = useState(null);
   const [mealsOptions, setMealsOptions] = useState([]);
   const [selectedMeals, setSelectedMeals] = useState([]);
+  const [isValid, setIsValid] = useState(true);
 
 
   const getMeals = async() => {
@@ -60,7 +59,8 @@ const Meals = () => {
     const selectedMeal = meals.splice(index, 1);
     setMealsOptions(meals);
     setSelectedMeals([...selectedMeals, selectedMeal[0]]);
-    dispatch(addMeal({ meal: selectedMeal[0].name }))
+    dispatch(addMeal({ meal: selectedMeal[0] }))
+    setIsValid(true);
   };
 
   const handleDeselect = index => (e) => {
@@ -68,7 +68,15 @@ const Meals = () => {
     const mealOption = selected.splice(index, 1);
     setSelectedMeals(selected);
     setMealsOptions([...mealsOptions, mealOption[0]]);
-    dispatch(removeMeal({ meal: mealOption[0].name }))
+    dispatch(removeMeal({ meal: mealOption[0] }))
+  };
+
+  const handleContinue = (e) => {
+    if (!selectedMealsList.length) {
+      setIsValid(false);
+    } else {
+      navigate('/ingredients');
+    }
   };
 
   return loading ? (
@@ -111,7 +119,7 @@ const Meals = () => {
               <Typography component="h2" variant="h6" sx={{ mt: 3 }}>
                 Meals List
               </Typography>
-              <Box sx={{ border: '1px dashed #676767', width: '100%', minHeight: '200px', mt: 1 }}>
+              <Box sx={{ border: `1px dashed ${isValid ? '#676767' : 'red' }`, width: '100%', minHeight: '200px', mt: 1 }}>
                 { selectedMeals.map((input, index) => {
                   return (
                     <Button key={index} variant="outlined" sx={{ m: 1, textTransform: 'none' }} onClick={ handleDeselect(index) }>
@@ -121,9 +129,12 @@ const Meals = () => {
                 })
                 }
               </Box>
-              <Button variant="contained" sx={{ mt: 3 }}>
+              <Button onClick={ handleContinue } variant="contained" sx={{ mt: 5 }}>
                 Continue
               </Button>
+              <Typography variant="body1" color='red' sx={{ mt: 1 }}>
+                { isValid ? '' : 'Please select at least one meal' }
+              </Typography>
             </Box>
           </Container>
         </ThemeProvider >

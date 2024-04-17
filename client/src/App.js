@@ -1,4 +1,5 @@
 import { BrowserRouter, Navigate, Routes, Route, Outlet } from 'react-router-dom';
+import Ingredients from './pages/ingredients';
 import ManageMeals from './pages/manage-meals';
 import EditMeal from './pages/edit-meal';
 import CreateMeal from './pages/create-meal';
@@ -58,6 +59,7 @@ const App = () => {
           <Route path='/meals/create-meal' element={ <CreateMeal /> } />
           <Route path='/meals/edit-meal' element={ <EditMeal /> } />
           <Route path='meals/manage-meals' element={ <ManageMeals /> } />
+          <Route path='/ingredients' element={ <Ingredients /> } />
         </Route>
 
         <Route element={ <RestrictedRoutes /> } >

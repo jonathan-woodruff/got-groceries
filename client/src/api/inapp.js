@@ -28,3 +28,7 @@ export async function onEditMeal(mealData) {
 export async function onEditMealUnchangedName(mealData) {
     return await axios.put(`${serverURL}/inapp/meals/edit-meal/unchanged`, mealData)
 };
+
+export async function fetchIngredients() {
+    return await axios.get(`${serverURL}/inapp/ingredients`);
+};
