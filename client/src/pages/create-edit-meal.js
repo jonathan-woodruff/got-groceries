@@ -237,9 +237,21 @@ const CreateEditMeal = (props) => {
                                   onChange={ handleChange(index) }
                                   sx={{ mt: 2, width: '150px' }}
                               >
-                                  <MenuItem value="dairy">Dairy</MenuItem>
-                                  <MenuItem value="meat">Meat</MenuItem>
-                                  <MenuItem value="produce">Produce</MenuItem>
+                                  <MenuItem value="Baking">Baking</MenuItem>
+                                  <MenuItem value="Bathroom">Bathroom</MenuItem>
+                                  <MenuItem value="Bread">Bread</MenuItem>
+                                  <MenuItem value="Breakfast">Dairy</MenuItem>
+                                  <MenuItem value="Candy">Candy</MenuItem>
+                                  <MenuItem value="Canned">Canned</MenuItem>
+                                  <MenuItem value="Dairy">Dairy</MenuItem>
+                                  <MenuItem value="Frozen">Frozen</MenuItem>
+                                  <MenuItem value="International">International</MenuItem>
+                                  <MenuItem value="Kitchen">Kitchen</MenuItem>
+                                  <MenuItem value="Meat">Meat</MenuItem>
+                                  <MenuItem value="Outdoor">Outdoor</MenuItem>
+                                  <MenuItem value="Produce">Produce</MenuItem>
+                                  <MenuItem value="School">School</MenuItem>
+                                  <MenuItem value="Snacks">Snacks</MenuItem>
                                   <MenuItem value=""></MenuItem>
                               </Select>
                               { values[index].showRemove ?

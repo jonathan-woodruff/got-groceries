@@ -152,12 +152,6 @@ exports.getIngredients = async (req, res) => {
 
 //save the user's grocery list
 exports.createGroceryList = async (req, res) => {
-    let id;
-    if (req.user) {
-        id = await getUserIdSSO(req);
-    } else {
-        id = getUserIdAuth(req);
-    }
     const ingredientsList = req.body.ingredientsList;
     const flaggedIngredientIds = [];
     const flaggedMealIds = [];
@@ -194,7 +188,7 @@ exports.getGroceryList = async (req, res) => {
         id = getUserIdAuth(req);
     }
     try {
-        const { rows } = await db.query(`SELECT ingredients.name, ingredients.quantity, ingredients.category, ingredients.added_to_cart AS incart FROM meals INNER JOIN ingredients ON meals.id = ingredients.meal_id WHERE meals.user_id = $1 AND ingredients.in_grocery_list = true`, [id]);
+        const { rows } = await db.query(`SELECT ingredients.id, ingredients.name, ingredients.quantity, ingredients.category, ingredients.added_to_cart AS incart FROM meals INNER JOIN ingredients ON meals.id = ingredients.meal_id WHERE meals.user_id = $1 AND ingredients.in_grocery_list = true`, [id]);
         return res.status(200).json({
             success: true,
             message: 'got meals',
@@ -202,5 +196,34 @@ exports.getGroceryList = async (req, res) => {
         });
     } catch(error) {
         console.log(error.message);
+    }
+};
+
+//update the grocery cart
+exports.updateCart = async (req, res) => {
+    const groceryList = req.body.list;
+    const flaggedIngredientIds = [];
+    groceryList.forEach(category => {
+        category.items.forEach(item => {
+            if (item.incart) {
+                flaggedIngredientIds.push(item.id);
+                if (item.otherIds.length) {
+                    item.otherIds.forEach(itemId => flaggedIngredientIds.push(itemId));
+                }
+            }
+        })
+    });
+    try {
+        await db.query('UPDATE ingredients SET added_to_cart = false'); //update all flags to false.
+        await db.query(`UPDATE ingredients SET added_to_cart = true WHERE id = ANY($1)`, [flaggedIngredientIds]);
+        return res.json({
+            success: true,
+            message: 'Updated grocery cart'
+        });
+    } catch(error) {
+        console.log(error.message);
+        res.status(500).json({
+            error: error.message
+        });
     }
 };

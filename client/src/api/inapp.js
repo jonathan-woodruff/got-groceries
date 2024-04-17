@@ -40,3 +40,7 @@ export async function onFinish(ingredientsData) {
 export async function fetchGroceryList() {
     return await axios.get(`${serverURL}/inapp/list`);
 };
+
+export async function putGroceryCart(groceryData) {
+    return await axios.put(`${serverURL}/inapp/list`, groceryData);
+};

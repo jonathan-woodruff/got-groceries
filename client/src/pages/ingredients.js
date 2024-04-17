@@ -4,11 +4,20 @@ import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchIngredients, onFinish } from '../api/inapp';
 import Layout from '../components/layout';
-import { useNavigate, createSearchParams } from 'react-router-dom';
-import { Button, CssBaseline, Box, Container, Typography, FormGroup, FormControlLabel, Checkbox, Grid } from '@mui/material';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { useNavigate } from 'react-router-dom';
+import { 
+  Button, 
+  CssBaseline, 
+  Box, 
+  Container, 
+  Typography, 
+  FormControlLabel, 
+  Checkbox, 
+  Grid 
+} from '@mui/material';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
 
 
 const defaultTheme = createTheme();
@@ -24,19 +33,6 @@ const Ingredients = () => {
   const [droppedIndex, setDroppedIndex] = useState(null);
   const [isValid, setIsValid] = useState(true);
 
-  const handleManage = () => {
-    const searchQuery = createSearchParams({ return: 'meals' });
-    navigate({
-      pathname: '/meals/manage-meals',
-      search: `?${searchQuery}`
-    });
-  };
-
-  const loadSelected = () => {
-    selectedMealsList.forEach(meal => {
-        setDroppedMeals(prevDroppedMeals => ([...prevDroppedMeals, { dropDown: false }]));
-    });
-  };
 
   const handleSelect = index => (e) => {
     if (droppedIndex === index) {
@@ -46,8 +42,6 @@ const Ingredients = () => {
     }
     const mealId = selectedMealsList[index].id;
     setMealIngredients(ingredientsList.filter(ingredient => ingredient.mealid === mealId));
-    /*const isDropped = droppedMeals[index]['dropDown'];
-    setDroppedMeals([...droppedMeals, droppedMeals[index]['dropDown'] = !isDropped]);*/
   };
 
   const getIngredients = async () => {
@@ -118,13 +112,13 @@ const Ingredients = () => {
                         { selectedMealsList[index].name }
                     </Box>
                   </Button>
-                  <Grid container spacing={1} alignItems="center" justifyContent="space-between">
+                  <Grid container spacing={1} alignItems="center">
                     { index === droppedIndex ? 
                         ingredientsList.map((input, index2) => {
                         return (
                           <>
                           { ingredientsList[index2].mealid === selectedMealsList[index].id
-                            ? <Grid item xs={3.1} sx={{ mb: 4 }}>
+                            ? <Grid item xs={4} sx={{ mb: 4 }}>
                                 <FormControlLabel control={ <Checkbox onChange={ handleCheck(index2) } checked={ ingredientsList[index2].checked } /> } label={ ingredientsList[index2].ingredientname } />
                               </Grid>
                             : <></>
