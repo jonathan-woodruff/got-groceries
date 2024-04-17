@@ -73,7 +73,12 @@ const Ingredients = () => {
     if (index === -1) { //user didn't check any boxes
       setIsValid(false);
     } else { //proceed as long as the user checked at least one box
-      await onFinish(ingredientsList);
+      try {
+        await onFinish({ ingredientsList: ingredientsList });
+        navigate('/list');
+      } catch(error) {
+        console.log(error);
+      }
     }
   };
 

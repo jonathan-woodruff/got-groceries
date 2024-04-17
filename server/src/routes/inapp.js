@@ -10,7 +10,8 @@ const {
     getMealIngredients, 
     editMeal, 
     getIngredients,
-    createGroceryList
+    createGroceryList,
+    getGroceryList
 } = require('../controllers/inapp');
 const { createMealValidation, editMealValidation } = require('../validators/inapp');
 const { validationMiddleware } = require('../middlewares/validation-middleware');
@@ -22,6 +23,7 @@ router.get('/meals/edit-meal/:id', getMealIngredients);
 router.put('/meals/edit-meal', editMealValidation, validationMiddleware, cleanCreateMeal, editMeal);
 router.put('/meals/edit-meal/unchanged', cleanCreateMeal, editMeal);
 router.get('/ingredients', getIngredients);
-router.post('/ingredients', createGroceryList)
+router.put('/ingredients', createGroceryList);
+router.get('/list', getGroceryList);
 
 module.exports = router;

@@ -139,7 +139,7 @@ exports.getIngredients = async (req, res) => {
         id = getUserIdAuth(req);
     }
     try {
-        const { rows } = await db.query(`SELECT ingredients.id AS ingredientId, ingredients.name AS ingredientName, meals.id AS mealId FROM meals INNER JOIN ingredients ON meals.id = ingredients.meal_id WHERE meals.user_id = $1 ORDER BY meals.name, ingredients.name`, [id]);
+        const { rows } = await db.query(`SELECT ingredients.id AS ingredientId, ingredients.name AS ingredientName, ingredients.category, meals.id AS mealId FROM meals INNER JOIN ingredients ON meals.id = ingredients.meal_id WHERE meals.user_id = $1 ORDER BY meals.name, ingredients.name`, [id]);
         return res.status(200).json({
             success: true,
             message: 'got meals',
@@ -158,7 +158,21 @@ exports.createGroceryList = async (req, res) => {
     } else {
         id = getUserIdAuth(req);
     }
+    const ingredientsList = req.body.ingredientsList;
+    const flaggedIngredientIds = [];
+    const flaggedMealIds = [];
+    ingredientsList.forEach(ingredient => {
+        if (ingredient.checked) {
+            flaggedIngredientIds.push(ingredient.ingredientid);
+            flaggedMealIds.push(ingredient.mealid);
+        }
+    });
     try {
+        //update all flags to false.
+        await db.query('UPDATE meals SET in_grocery_list = false');
+        await db.query('UPDATE ingredients SET in_grocery_list = false');
+        await db.query(`UPDATE meals SET in_grocery_list = true WHERE id = ANY($1)`, [flaggedMealIds]);
+        await db.query(`UPDATE ingredients SET in_grocery_list = true WHERE id = ANY($1)`, [flaggedIngredientIds]);
         return res.json({
             success: true,
             message: 'Created grocery list'
@@ -168,5 +182,25 @@ exports.createGroceryList = async (req, res) => {
         res.status(500).json({
             error: error.message
         });
+    }
+};
+
+//get the user's grocery list
+exports.getGroceryList = async (req, res) => {
+    let id;
+    if (req.user) {
+        id = await getUserIdSSO(req);
+    } else {
+        id = getUserIdAuth(req);
+    }
+    try {
+        const { rows } = await db.query(`SELECT ingredients.name, ingredients.quantity, ingredients.category, ingredients.added_to_cart AS incart FROM meals INNER JOIN ingredients ON meals.id = ingredients.meal_id WHERE meals.user_id = $1 AND ingredients.in_grocery_list = true`, [id]);
+        return res.status(200).json({
+            success: true,
+            message: 'got meals',
+            list: rows
+        });
+    } catch(error) {
+        console.log(error.message);
     }
 };

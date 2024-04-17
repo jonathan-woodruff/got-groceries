@@ -33,6 +33,10 @@ export async function fetchIngredients() {
     return await axios.get(`${serverURL}/inapp/ingredients`);
 };
 
-export async function onFinish(ingredientsList) {
-    return await axios.post(`${serverURL}/inapp/ingredients`, ingredientsList);
+export async function onFinish(ingredientsData) {
+    return await axios.put(`${serverURL}/inapp/ingredients`, ingredientsData);
+};
+
+export async function fetchGroceryList() {
+    return await axios.get(`${serverURL}/inapp/list`);
 };

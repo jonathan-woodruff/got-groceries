@@ -4,11 +4,12 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchProtectedInfo, fetchProtectedInfoSSO } from '../api/auth';
+import { fetchGroceryList } from '../api/inapp';
 import Layout from '../components/layout';
 import { unauthenticateUser, notSSO } from '../redux/slices/authSlice';
 import { useNavigate } from 'react-router-dom';
 import { logout } from '../utils/index';
-import { Button, CssBaseline, Box, Container } from '@mui/material';
+import { Button, CssBaseline, Box, Container, Typography } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 
 
@@ -26,7 +27,6 @@ const List = () => {
     try {
       const { data } = ssoLogin ? await fetchProtectedInfoSSO() : await fetchProtectedInfo();
       setProtectedData(data.info);
-      setLoading(false);
     } catch(error) {
       logout(); //if the user isn't property authenticated using the token on the cookie or there is some other issue, this will force logout thus not allowing a user to gain unauthenticated access
       dispatch(notSSO());
@@ -34,8 +34,14 @@ const List = () => {
     }
   };
 
+  const getGroceryList = async () => {
+    const groceryList = await fetchGroceryList();
+  };
+
   useEffect(() => {
     protectedInfo();
+    getGroceryList();
+    setLoading(false);
   }, []);
 
   const handleClick = () => {
@@ -50,7 +56,7 @@ const List = () => {
     <div>
       <Layout>
         <ThemeProvider theme={defaultTheme}>
-          <Container component="main" maxWidth="xs">
+          <Container component="main" maxWidth="md">
             <CssBaseline />
             <Box
               sx={{
@@ -60,14 +66,17 @@ const List = () => {
                 alignItems: 'center',
               }}
             >
+              <Typography component="h2" variant="h6" sx={{ mt: 3 }}>
+                My Grocery List
+              </Typography>
               <Button 
                 onClick={ handleClick }
-                fullWidth
                 variant="contained"
-                sx={{ mt: 3, mb: 2 }}
+                sx={{ mt: 5, mb: 2, pr: 3, pl: 3 }}
               >
                 Start a New List
               </Button>
+
             </ Box>
           </ Container>
         </ ThemeProvider >
