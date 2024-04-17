@@ -139,7 +139,7 @@ exports.getIngredients = async (req, res) => {
         id = getUserIdAuth(req);
     }
     try {
-        const { rows } = await db.query(`SELECT ingredients.id, ingredients.name FROM meals INNER JOIN ingredients ON meals.id = ingredients.meal_id WHERE meals.user_id = $1 ORDER BY meals.name, ingredients.name`, [id]);
+        const { rows } = await db.query(`SELECT ingredients.id AS ingredientId, ingredients.name AS ingredientName, meals.id AS mealId FROM meals INNER JOIN ingredients ON meals.id = ingredients.meal_id WHERE meals.user_id = $1 ORDER BY meals.name, ingredients.name`, [id]);
         return res.status(200).json({
             success: true,
             message: 'got meals',
