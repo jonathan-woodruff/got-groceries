@@ -162,6 +162,7 @@ exports.createGroceryList = async (req, res) => {
             }
         })
     });
+    const createList = req.body.createList;
     try {
         //update all flags to false.
         await db.query(`UPDATE meals SET in_grocery_list = false`);
@@ -169,8 +170,8 @@ exports.createGroceryList = async (req, res) => {
         //set flags to true
         await db.query(`UPDATE meals SET in_grocery_list = true WHERE id = ANY($1)`, [flaggedMealIds]);
         await db.query(`UPDATE ingredients SET in_grocery_list = true WHERE id = ANY($1)`, [flaggedIngredientIds]);
-        //flag the the user has created a list
-        await db.query(`UPDATE users SET created_list = true WHERE user_id = $1`, [id]);
+        //flag that the the user has created a list
+        if (createList) await db.query(`UPDATE users SET created_list = true WHERE user_id = $1`, [id]);
         return res.json({
             success: true,
             message: 'Created grocery list'

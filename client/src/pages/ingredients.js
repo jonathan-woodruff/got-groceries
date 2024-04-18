@@ -99,7 +99,7 @@ const Ingredients = () => {
       setIsValid(false);
     } else { //proceed as long as the user checked at least one box
       try {
-        await onFinish({ ingredientsList: ingredientsList });
+        await onFinish({ ingredientsList: ingredientsList, createList: true });
         navigate('/list');
       } catch(error) {
         console.log(error);
@@ -107,16 +107,26 @@ const Ingredients = () => {
     }
   };
 
-  const handleBack = () => {
-    navigate('/meals');
+  const handleBack = async () => {
+    try {
+      await onFinish({ ingredientsList: ingredientsList, createList: false }); //save the user progress but don't actually mark the list as created
+      navigate('/meals');
+    } catch(error) {
+      console.log(error);
+    }
   };
 
-  const handleManage = () => {
-    const searchQuery = createSearchParams({ return: 'ingredients' });
-    navigate({
-      pathname: '/meals/manage-meals',
-      search: `?${searchQuery}`
-    });
+  const handleManage = async () => {
+    try {
+      await onFinish({ ingredientsList: ingredientsList, createList: false }); //save the user progress but don't actually mark the list as created
+      const searchQuery = createSearchParams({ return: 'ingredients' });
+      navigate({
+        pathname: '/meals/manage-meals',
+        search: `?${searchQuery}`
+      });
+    } catch(error) {
+      console.log(error);
+    }
   };
 
   useEffect(() => {
@@ -158,7 +168,7 @@ const Ingredients = () => {
                 alignItems: 'center',
               }}
             >
-              <Typography component="h2" variant="h6" sx={{ mt: 3 }}>
+              <Typography component="h2" variant="h6" sx={{ mt: 3, mb: 3 }}>
                 Select Ingredients
               </Typography>
               { ingredientsList.map((input, index) => {

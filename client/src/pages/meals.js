@@ -72,19 +72,29 @@ const Meals = () => {
     if (mealsOptions.length || selectedMeals.length || emptyLists) setLoading(false);
   }, [mealsOptions, selectedMeals, emptyLists]);
 
-  const handleClick = () => {
-    navigate('/meals/create-meal')
+  const handleClick = async () => {
+    try {
+      await putSelected({ meals: selectedMeals });
+      navigate('/meals/create-meal')
+    } catch(error) {
+      console.log(error);
+    }
   };
 
-  const handleManage = () => {
-    const searchQuery = createSearchParams({ return: 'meals' });
-    navigate({
-      pathname: '/meals/manage-meals',
-      search: `?${searchQuery}`
-    });
+  const handleManage = async () => {
+    try {
+      await putSelected({ meals: selectedMeals });
+      const searchQuery = createSearchParams({ return: 'meals' });
+      navigate({
+        pathname: '/meals/manage-meals',
+        search: `?${searchQuery}`
+      });
+    } catch(error) {
+      console.log(error);
+    }
   };
 
-  const handleSelect = index => (e) => {
+  const handleSelect = index => () => {
     const meals = [...mealsOptions];
     const selectedMeal = meals.splice(index, 1);
     setMealsOptions(meals);
@@ -92,27 +102,33 @@ const Meals = () => {
     setIsValid(true);
   };
 
-  const handleDeselect = index => (e) => {
+  const handleDeselect = index => () => {
     const selected = [...selectedMeals];
     const mealOption = selected.splice(index, 1);
     setSelectedMeals(selected);
     setMealsOptions([...mealsOptions, mealOption[0]]);
   };
 
-  const handleContinue = (e) => {
+  const handleContinue = async () => {
     if (!selectedMeals.length) {
       setIsValid(false);
     } else {
-      const updateDatabase = async () => {
+      try {
         await putSelected({ meals: selectedMeals });
-      };
-      updateDatabase();
-      navigate('/ingredients');
+        navigate('/ingredients');
+      } catch(error) {
+        console.log(error);
+      }
     }
   };
 
-  const handleBack = (e) => {
-    navigate('/list');
+  const handleBack = async () => {
+    try {
+      await putSelected({ meals: selectedMeals });
+      navigate('/list');
+    } catch(error) {
+      console.log(error);
+    }
   };
 
   return loading ? (

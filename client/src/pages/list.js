@@ -229,10 +229,10 @@ const List = () => {
                 alignItems: 'center',
               }}
             >
-              <Typography component="h2" variant="h6" sx={{ mt: 3, mb: 2 }}>
+              <Typography component="h2" variant="h6" sx={{ mt: 3, mb: 3 }}>
                 My Grocery List
               </Typography>
-              { groceryList.map((input, index) => {
+              { listHistory === 'created list' ? groceryList.map((input, index) => {
                 return (
                   <>
                   <Button 
@@ -262,7 +262,8 @@ const List = () => {
                   </Grid>
                   </>
                 )
-              })
+              }) :
+              <></>
               }
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mt: 5 }}>
                 { listHistory === 'created list' ?

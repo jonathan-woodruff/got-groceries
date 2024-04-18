@@ -210,10 +210,10 @@ const CreateEditMeal = (props) => {
                 alignItems: 'center',
               }}
             >
-              <Typography component="h1" variant="h5">
+              <Typography component="h1" variant="h6" sx={{ mt: 3, mb: 3 }}>
                 {isEditing ? 'Edit Meal' : 'Create a Meal'}
               </Typography>
-              <Box component="form" onSubmit={ (e) => handleSubmit(e) } noValidate sx={{ mt: 1 }}>
+              <Box component="form" onSubmit={ (e) => handleSubmit(e) } noValidate>
                 <TextField
                   margin="normal"
                   required
