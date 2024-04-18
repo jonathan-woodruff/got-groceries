@@ -33,6 +33,7 @@ const ManageMeals = () => {
   const [loading, setLoading] = useState(true);
   const [mealsList, setMealsList] = useState([]);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [emptyList, setEmptyList] = useState(false);
 
   const checkAuthenticated = async () => {
     try {
@@ -48,7 +49,8 @@ const ManageMeals = () => {
   const getMeals = async() => {
     try {
       const { data } = await fetchMeals();
-      setMealsList(data.meals);
+      setMealsList([...data.selectedMeals, ...data.mealOptions]);
+      if (!data.selectedMeals.length && !data.mealOptions.length) setEmptyList(true);
     } catch(error) {
       console.log(error);
     }
@@ -65,11 +67,14 @@ const ManageMeals = () => {
     if (isAuthenticated) {
       const initializePage = async () => {
         await getMeals();
-        setLoading(false);
       }
       initializePage();
     }
   }, [isAuthenticated]);
+
+  useEffect(() => {
+    if (mealsList.length || emptyList) setLoading(false);
+  }, [mealsList, emptyList]);
 
   const handleClick = () => {
     const urlParams = new URLSearchParams(window.location.search);

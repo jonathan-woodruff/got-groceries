@@ -70,11 +70,15 @@ const CreateEditMeal = (props) => {
     if (isAuthenticated) {
       const initializePage = async () => {
         await loadData();
-        setLoading(false);
+        if (!isEditing) setLoading(false);
       }
       initializePage();
     }
   }, [isAuthenticated]);
+
+  useEffect(() => {
+    if (isEditing && mealName && startingMealName && values.findIndex(ingredient => ingredient.name) !== -1) setLoading(false);
+  }, [isEditing, mealName, startingMealName, values]);
 
   const loadData = async () => {
     if (isEditing) {

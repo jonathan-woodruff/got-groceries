@@ -130,11 +130,14 @@ const Ingredients = () => {
     if (isAuthenticated) {
       const initializePage = async () => {
         await getIngredients();
-        setLoading(false);
       }
       initializePage();
     }
   }, [isAuthenticated]);
+
+  useEffect(() => {
+    if (ingredientsList.length) setLoading(false);
+  }, [ingredientsList]);
 
 
   return loading ? (

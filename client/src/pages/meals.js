@@ -25,6 +25,7 @@ const Meals = () => {
   const [selectedMeals, setSelectedMeals] = useState([]);
   const [isValid, setIsValid] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [emptyLists, setEmptyLists] = useState(false);
 
 
   const checkAuthenticated = async () => {
@@ -43,6 +44,7 @@ const Meals = () => {
       const { data } = await fetchMeals();
       setMealsOptions(data.mealOptions);
       setSelectedMeals(data.selectedMeals);
+      if(!data.mealOptions.length && !data.selectedMeals.length) setEmptyLists(true);
     } catch(error) {
       logout(); //if the user isn't property authenticated using the token on the cookie or there is some other issue, this will force logout thus not allowing a user to gain unauthenticated access
       dispatch(notSSO());
@@ -61,11 +63,14 @@ const Meals = () => {
     if (isAuthenticated) {
       const initializePage = async () => {
         await getMeals();
-        setLoading(false);
       };
       initializePage();
     }
   }, [isAuthenticated]);
+
+  useEffect(() => {
+    if (mealsOptions.length || selectedMeals.length || emptyLists) setLoading(false);
+  }, [mealsOptions, selectedMeals, emptyLists]);
 
   const handleClick = () => {
     navigate('/meals/create-meal')
@@ -143,7 +148,7 @@ const Meals = () => {
                 <Button onClick={ handleClick } variant="contained" sx={{ m: 1 }}>
                   + Create New Meal
                 </Button>
-                <Button onClick={ handleManage } variant="contained" startIcon={ <SettingsIcon /> } color="grey" sx={{ m: 1 }}>
+                <Button onClick={ handleManage } disabled={ !mealsOptions.length && !selectedMeals.length ? true : false } variant="contained" startIcon={ <SettingsIcon /> } color="grey" sx={{ m: 1 }}>
                   Manage My Meals
                 </Button>
               </Box>

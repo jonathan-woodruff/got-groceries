@@ -20,9 +20,9 @@ exports.createMeal = async (req, res) => {
         } else {
             nextMealId = 1;
         }
-        await db.query(`INSERT INTO meals (id, name, user_id) VALUES ($1, $2, $3)`, [nextMealId, mealName, id]);
+        await db.query(`INSERT INTO meals (id, name, user_id, in_grocery_list, selected) VALUES ($1, $2, $3, false, false)`, [nextMealId, mealName, id]);
         values.forEach(async value => {
-            await db.query(`INSERT INTO ingredients (name, quantity, category, meal_id) VALUES ($1, $2, $3, $4)`, [value.name, value.quantity, value.category, nextMealId]);
+            await db.query(`INSERT INTO ingredients (name, quantity, category, meal_id, in_grocery_list, added_to_cart) VALUES ($1, $2, $3, $4, false, false)`, [value.name, value.quantity, value.category, nextMealId]);
         });
         return res.json({
             success: true,
@@ -86,7 +86,7 @@ exports.getMealIngredients = async (req, res) => {
     }
     const mealId = req.params.id;
     try {
-        const { rows } = await db.query(`SELECT ingredients.name, CAST(ingredients.quantity AS varchar), ingredients.category, meals.name AS mealname FROM meals INNER JOIN ingredients ON meals.id = ingredients.meal_id WHERE meals.id = $1 AND meals.user_id = $2`, [mealId, id]);
+        const { rows } = await db.query(`SELECT ingredients.name, CAST(ingredients.quantity AS varchar), ingredients.category, ingredients.in_grocery_list AS inlist, ingredients.added_to_cart AS incart, meals.name AS mealname FROM meals INNER JOIN ingredients ON meals.id = ingredients.meal_id WHERE meals.id = $1 AND meals.user_id = $2`, [mealId, id]);
         if (!rows.length) {
             return res.status(401).json({
                 success: false,
@@ -111,7 +111,7 @@ exports.editMeal = async (req, res) => {
     try {
         q = await db.query(`DELETE FROM ingredients WHERE meal_id = $1`, [mealId]);
         values.forEach(async value => {
-            await db.query(`INSERT INTO ingredients (name, quantity, category, meal_id) VALUES ($1, $2, $3, $4)`, [value.name, value.quantity, value.category, mealId]);
+            await db.query(`INSERT INTO ingredients (name, quantity, category, meal_id, in_grocery_list, added_to_cart) VALUES ($1, $2, $3, $4, $5, $6)`, [value.name, value.quantity, value.category, mealId, value.inlist, value.incart]);
         });
         q = await db.query(`UPDATE meals SET name = $1 WHERE id = $2`, [mealName, mealId]);
         return res.status(200).json({
@@ -145,6 +145,12 @@ exports.getIngredients = async (req, res) => {
 
 //save the user's grocery list
 exports.createGroceryList = async (req, res) => {
+    let id;
+    if (req.user) {
+        id = await getUserIdSSO(req);
+    } else {
+        id = getUserIdAuth(req);
+    }
     const ingredientsList = req.body.ingredientsList;
     const flaggedIngredientIds = [];
     const flaggedMealIds = [];
@@ -160,8 +166,11 @@ exports.createGroceryList = async (req, res) => {
         //update all flags to false.
         await db.query(`UPDATE meals SET in_grocery_list = false`);
         await db.query(`UPDATE ingredients SET in_grocery_list = false`);
+        //set flags to true
         await db.query(`UPDATE meals SET in_grocery_list = true WHERE id = ANY($1)`, [flaggedMealIds]);
         await db.query(`UPDATE ingredients SET in_grocery_list = true WHERE id = ANY($1)`, [flaggedIngredientIds]);
+        //flag the the user has created a list
+        await db.query(`UPDATE users SET created_list = true WHERE user_id = $1`, [id]);
         return res.json({
             success: true,
             message: 'Created grocery list'
@@ -183,11 +192,13 @@ exports.getGroceryList = async (req, res) => {
         id = getUserIdAuth(req);
     }
     try {
-        const { rows } = await db.query(`SELECT ingredients.id, ingredients.name, ingredients.quantity, ingredients.category, ingredients.added_to_cart AS incart FROM meals INNER JOIN ingredients ON meals.id = ingredients.meal_id WHERE meals.user_id = $1 AND ingredients.in_grocery_list = true`, [id]);
+        const q1 = await db.query(`SELECT ingredients.id, ingredients.name, ingredients.quantity, ingredients.category, ingredients.added_to_cart AS incart FROM meals INNER JOIN ingredients ON meals.id = ingredients.meal_id WHERE meals.user_id = $1 AND ingredients.in_grocery_list = true`, [id]);
+        const q2 = await db.query(`SELECT started_list AS startedlist, created_list AS createdlist FROM users WHERE user_id = $1`, [id]);
         return res.status(200).json({
             success: true,
             message: 'got meals',
-            list: rows
+            list: q1.rows,
+            userData: q2.rows
         });
     } catch(error) {
         console.log(error.message);
@@ -236,6 +247,32 @@ exports.updateSelectedMeals = async (req, res) => {
         return res.json({
             success: true,
             message: 'Updated selected meals'
+        });
+    } catch(error) {
+        console.log(error.message);
+        res.status(500).json({
+            error: error.message
+        });
+    }
+};
+
+//reset database flags to start a new grocery list
+exports.refreshList = async (req, res) => {
+    let id;
+    if (req.user) {
+        id = await getUserIdSSO(req);
+    } else {
+        id = getUserIdAuth(req);
+    }
+    try {
+        //reset flags
+        await db.query(`UPDATE meals SET in_grocery_list = false, selected = false WHERE user_id = $1`, [id]);
+        await db.query(`UPDATE ingredients SET added_to_cart = false, in_grocery_list = false FROM meals WHERE meals.user_id = $1 AND meals.id = ingredients.meal_id`, [id]);
+        //indicate the user started a list
+        await db.query(`UPDATE users SET started_list = true, created_list = false WHERE user_id = $1`, [id]);
+        return res.json({
+            success: true,
+            message: 'refreshed list'
         });
     } catch(error) {
         console.log(error.message);

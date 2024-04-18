@@ -48,3 +48,7 @@ export async function putGroceryCart(groceryData) {
 export async function putSelected(mealData) {
     return await axios.put(`${serverURL}/inapp/meals`, mealData);
 };
+
+export async function putFreshStart() {
+    return await axios.put(`${serverURL}/inapp/list/fresh`);
+};

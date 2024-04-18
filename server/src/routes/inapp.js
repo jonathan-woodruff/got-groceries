@@ -13,7 +13,8 @@ const {
     createGroceryList,
     getGroceryList,
     updateCart,
-    updateSelectedMeals
+    updateSelectedMeals,
+    refreshList
 } = require('../controllers/inapp');
 const { createMealValidation, editMealValidation } = require('../validators/inapp');
 const { validationMiddleware } = require('../middlewares/validation-middleware');
@@ -29,5 +30,6 @@ router.put('/ingredients', createGroceryList);
 router.get('/list', getGroceryList);
 router.put('/list', updateCart);
 router.put('/meals', updateSelectedMeals);
+router.put('/list/fresh', refreshList);
 
 module.exports = router;

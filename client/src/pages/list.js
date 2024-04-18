@@ -1,17 +1,32 @@
 /* the page that the user sees upon authentication */
 /* When the page loads, useEffect will check if the user is authenticated. If so, it will show the private information. If the user is not authenticated, it will log them out */
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, Fragment } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchProtectedInfo, fetchProtectedInfoSSO } from '../api/auth';
-import { fetchGroceryList, putGroceryCart } from '../api/inapp';
+import { fetchGroceryList, putGroceryCart, putFreshStart } from '../api/inapp';
 import Layout from '../components/layout';
 import { unauthenticateUser, notSSO } from '../redux/slices/authSlice';
 import { useNavigate } from 'react-router-dom';
 import { logout } from '../utils/index';
-import { Button, CssBaseline, Box, Container, Typography, Grid, FormControlLabel, Checkbox } from '@mui/material';
+import { 
+  Button, 
+  CssBaseline, 
+  Box, 
+  Container, 
+  Typography, 
+  Grid, 
+  FormControlLabel, 
+  Checkbox,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle
+} from '@mui/material';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import EditIcon from '@mui/icons-material/Edit';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 
 
@@ -26,6 +41,9 @@ const List = () => {
   const [autosave, setAutosave] = useState(false);
   const [boxesChanged, setBoxesChanged] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [emptyList, setEmptyList] = useState(false);
+  const [listHistory, setListHistory] = useState('');
 
   const checkAuthenticated = async () => {
     try {
@@ -53,6 +71,14 @@ const List = () => {
   const assembleGroceryList = async () => {
     try {
       const { data } = await fetchGroceryList();
+      //set if the user has ever started or finished creating a list before
+      if (data.userData[0].createdlist) {
+        setListHistory('created list');
+      } else if (data.userData[0].startedlist) {
+        setListHistory('started list');
+      } else {
+        setListHistory('new user');
+      }
       //organize the grocery list by category
       const organizedList = [];
       let categoryName, categoryIndex, itemIndex;
@@ -79,6 +105,7 @@ const List = () => {
         if (foundIndex === -1) category.isFinished = true; //flag the category as finished
       })
       setGroceryList(organizedList);
+      if (!organizedList.length) setEmptyList(true);
     } catch(error) {
       console.log(error);
     }
@@ -97,11 +124,14 @@ const List = () => {
     if (isAuthenticated) {
       const initializePage = async () => {
         await assembleGroceryList();
-        setLoading(false);
       };
       initializePage();
     }
-  }, [isAuthenticated])
+  }, [isAuthenticated]);
+
+  useEffect(() => {
+    if ((groceryList.length || emptyList) && listHistory) setLoading(false);
+  }, [groceryList, emptyList, listHistory]);
 
   //set the autosave interval
   useEffect(() => {
@@ -123,7 +153,7 @@ const List = () => {
     }
   }, [autosave, boxesChanged]); 
 
-  const handleClick = () => {
+  const handleEdit = () => {
     navigate(`../meals`)
   };
 
@@ -155,6 +185,22 @@ const List = () => {
     }
   };
 
+  const handleDialogClose = () => {
+    setDialogOpen(false);
+  };
+
+  const handleDialogOpen = () => {
+    setDialogOpen(true);
+  };
+
+  const handleConfirm = async () => {
+    try {
+      await putFreshStart();
+      navigate('/meals');
+    } catch(error) {
+      console.log(error);
+    }
+  };
   
   const updateCart = async () => {
     try {
@@ -218,13 +264,46 @@ const List = () => {
                 )
               })
               }
-              <Button 
-                onClick={ handleClick }
-                variant="contained"
-                sx={{ mt: 5, mb: 2, pr: 3, pl: 3 }}
-              >
-                Start a New List
-              </Button>
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mt: 5 }}>
+                { listHistory === 'created list' ?
+                  <Button onClick={ handleEdit } variant="contained" color="grey" startIcon={ <EditIcon /> } sx={{ pr: 3, pl: 3 }}>
+                    Edit List
+                  </Button> : listHistory === 'started list' ?
+                  <Button onClick={ handleEdit } variant="contained" sx={{ pr: 3, pl: 3 }}>
+                    Continue Creating List
+                  </Button> :
+                  <Button onClick={ handleConfirm } variant="contained" sx={{ pr: 3, pl: 3 }}>
+                    Create New List
+                  </Button>
+                }
+                { listHistory === 'created list' ?
+                  <Fragment>
+                    <Button onClick={ handleDialogOpen } variant="contained" sx={{ ml: 2, pr: 3, pl: 3 }}>
+                      Create New List
+                    </Button>
+                    <Dialog
+                      open={ dialogOpen }
+                      onClose={ handleDialogClose }
+                      aria-labelledby="alert-dialog-title"
+                      aria-describedby="alert-dialog-description"
+                    >
+                      <DialogTitle id="alert-dialog-title">
+                        {"Start fresh with a new list?"}
+                      </DialogTitle>
+                      <DialogContent>
+                        <DialogContentText id="alert-dialog-description">
+                          Starting a new list will get rid of your old one, but all the meals you created will still be saved.
+                        </DialogContentText>
+                      </DialogContent>
+                      <DialogActions>
+                        <Button onClick={ handleDialogClose }> Cancel </Button>
+                        <Button onClick={ handleConfirm } autoFocus> Ok </Button>
+                      </DialogActions>
+                    </Dialog>
+                  </Fragment> :
+                  <></>
+                }
+              </Box>
             </Box>
           </Container>
         </ThemeProvider >
