@@ -177,6 +177,10 @@ const CreateEditMeal = (props) => {
     setMealNameErrorMessage('');
   };
 
+  const handleBack = (e) => {
+    navigate(-1);
+  };
+
   return loading ? (
     <Layout>
       <h1>Loading...</h1>
@@ -213,7 +217,7 @@ const CreateEditMeal = (props) => {
                   helperText={ mealNameErrorMessage }
                   autoFocus
                 />
-                <Box sx={{ display: 'flex', alignItems: 'center'}}>
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <Box sx={{ mt: 2 }}>
                     { values.map((input, index) => {
                         return (
@@ -287,14 +291,14 @@ const CreateEditMeal = (props) => {
                       })}
                     </Box>
                 </Box>
-                <Button
-                  type="submit"
-                  fullWidth
-                  variant="contained"
-                  sx={{ mt: 2, mb: 2 }}
-                >
-                  { isEditing ? 'Finish Editing' : 'Save and Create' }
-                </Button>
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mt: 4 }}>
+                  <Button onClick={ handleBack } variant="contained" color="grey" sx={{ pr: 3, pl: 3, mr: 2 }}>
+                    Cancel
+                  </Button>
+                  <Button type="submit" variant="contained" sx={{ pr: 3, pl: 3 }}>
+                    { isEditing ? 'Finish Editing' : 'Save and Create' }
+                  </Button>
+                </Box>
               </Box>
             </ Box>
           </ Container>

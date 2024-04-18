@@ -12,7 +12,8 @@ const {
     getIngredients,
     createGroceryList,
     getGroceryList,
-    updateCart
+    updateCart,
+    updateSelectedMeals
 } = require('../controllers/inapp');
 const { createMealValidation, editMealValidation } = require('../validators/inapp');
 const { validationMiddleware } = require('../middlewares/validation-middleware');
@@ -26,6 +27,7 @@ router.put('/meals/edit-meal/unchanged', cleanCreateMeal, editMeal);
 router.get('/ingredients', getIngredients);
 router.put('/ingredients', createGroceryList);
 router.get('/list', getGroceryList);
-router.put('/list', updateCart)
+router.put('/list', updateCart);
+router.put('/meals', updateSelectedMeals);
 
 module.exports = router;

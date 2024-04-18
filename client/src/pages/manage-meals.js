@@ -8,7 +8,6 @@ import { fetchMeals } from '../api/inapp';
 import { fetchProtectedInfo, fetchProtectedInfoSSO } from '../api/auth';
 import { logout } from '../utils/index';
 import { unauthenticateUser, notSSO } from '../redux/slices/authSlice';
-import { removeMeal } from '../redux/slices/mealsSlice';
 import Layout from '../components/layout';
 import { useNavigate, createSearchParams } from 'react-router-dom';
 import { Button, CssBaseline, Box, Container, Typography, Grid, Paper } from '@mui/material';
@@ -65,15 +64,16 @@ const ManageMeals = () => {
   const handleClick = () => {
     const urlParams = new URLSearchParams(window.location.search);
     const returnLocation = urlParams.get('return');
-    if (returnLocation === 'meals') {
-        navigate('/meals');
+    if (returnLocation === 'ingredients') {
+      navigate('/ingredients');
+    } else {
+      navigate('/meals')
     }
   };
 
   const handleDelete = index => async (e) => {
     const mealName = mealsList[index].name;
     const mealId = mealsList[index].id;
-    dispatch(removeMeal({ meal: mealName })); //remove meal from selected meals (if the user selected it)
     //remove the meal from mealsList
     const data = [...mealsList];
     data.splice(index, 1);
@@ -112,21 +112,21 @@ const ManageMeals = () => {
                 alignItems: 'center',
               }}
             >
-              <Typography component="h2" variant="h6" sx={{ mt: 3 }}>
+              <Typography component="h2" variant="h6" sx={{ mt: 3, mb: 3 }}>
                 Edit or Delete Meals
               </Typography>
               <Grid container spacing={1} alignItems="center">
                 { mealsList.map((input, index) => {
                   return (
                     <>
-                        <Grid item xs={6} key={index}>
+                        <Grid item xs={7} key={index}>
                             <Item>{ mealsList[index].name }</Item>
                         </Grid>
-                        <Grid item xs={3} key={index}>
-                            <Button onClick={ handleEdit(index) } variant="contained" startIcon={ <EditIcon /> } color="grey">Edit</Button>
+                        <Grid item xs={2.5} key={index}>
+                            <Button onClick={ handleEdit(index) } fullWidth variant="contained" startIcon={ <EditIcon /> } color="grey">Edit</Button>
                         </Grid>
-                        <Grid item xs={3} key={index}>
-                            <Button onClick={ handleDelete(index) } variant="contained" startIcon={ <DeleteIcon /> } color="error">Delete</Button>
+                        <Grid item xs={2.5} key={index}>
+                            <Button onClick={ handleDelete(index) } fullWidth variant="contained" startIcon={ <DeleteIcon /> } color="error">Delete</Button>
                         </Grid>
                     </>
                   )

@@ -44,12 +44,15 @@ exports.getMeals = async (req, res) => {
     } else {
         id = getUserIdAuth(req);
     }
+    let q1;
     try {
-        const { rows } = await db.query(`SELECT id, name FROM meals WHERE user_id = $1 ORDER BY name`, [id]);
+        q1 = await db.query(`SELECT id, name FROM meals WHERE user_id = $1 AND meals.selected = false ORDER BY name`, [id]);
+        q2 = await db.query(`SELECT id, name FROM meals WHERE user_id = $1 AND meals.selected = true ORDER BY name`, [id]);
         return res.status(200).json({
             success: true,
             message: 'got meals',
-            meals: rows
+            mealOptions: q1.rows,
+            selectedMeals: q2.rows
         });
     } catch(error) {
         console.log(error.message);
@@ -129,11 +132,11 @@ exports.getIngredients = async (req, res) => {
         id = getUserIdAuth(req);
     }
     try {
-        const { rows } = await db.query(`SELECT ingredients.id AS ingredientId, ingredients.name AS ingredientName, ingredients.category, meals.id AS mealId FROM meals INNER JOIN ingredients ON meals.id = ingredients.meal_id WHERE meals.user_id = $1 ORDER BY meals.name, ingredients.name`, [id]);
+        const { rows } = await db.query(`SELECT ingredients.id AS ingredientId, ingredients.name AS ingredientName, ingredients.category, ingredients.in_grocery_list AS inlist, meals.id AS mealId, meals.name AS mealname FROM meals INNER JOIN ingredients ON meals.id = ingredients.meal_id WHERE meals.user_id = $1 AND meals.selected = true ORDER BY meals.name, ingredients.name`, [id]);
         return res.status(200).json({
             success: true,
-            message: 'got meals',
-            meals: rows
+            message: 'got ingredients',
+            ingredients: rows
         });
     } catch(error) {
         console.log(error.message);
@@ -145,16 +148,18 @@ exports.createGroceryList = async (req, res) => {
     const ingredientsList = req.body.ingredientsList;
     const flaggedIngredientIds = [];
     const flaggedMealIds = [];
-    ingredientsList.forEach(ingredient => {
-        if (ingredient.checked) {
-            flaggedIngredientIds.push(ingredient.ingredientid);
-            flaggedMealIds.push(ingredient.mealid);
-        }
+    ingredientsList.forEach(meal => {
+        meal.ingredients.forEach(ingredient => {
+            if (ingredient.inlist) {
+                flaggedIngredientIds.push(ingredient.ingredientid);
+                flaggedMealIds.push(ingredient.mealid);
+            }
+        })
     });
     try {
         //update all flags to false.
-        await db.query('UPDATE meals SET in_grocery_list = false');
-        await db.query('UPDATE ingredients SET in_grocery_list = false');
+        await db.query(`UPDATE meals SET in_grocery_list = false`);
+        await db.query(`UPDATE ingredients SET in_grocery_list = false`);
         await db.query(`UPDATE meals SET in_grocery_list = true WHERE id = ANY($1)`, [flaggedMealIds]);
         await db.query(`UPDATE ingredients SET in_grocery_list = true WHERE id = ANY($1)`, [flaggedIngredientIds]);
         return res.json({
@@ -209,6 +214,28 @@ exports.updateCart = async (req, res) => {
         return res.json({
             success: true,
             message: 'Updated grocery cart'
+        });
+    } catch(error) {
+        console.log(error.message);
+        res.status(500).json({
+            error: error.message
+        });
+    }
+};
+
+//update which meals are selected
+exports.updateSelectedMeals = async (req, res) => {
+    const mealData = req.body.meals;
+    const flaggedMealIds = [];
+    mealData.forEach(meal => {
+        flaggedMealIds.push(meal.id);
+    });
+    try {
+        await db.query(`UPDATE meals SET selected = false`);
+        await db.query(`UPDATE meals SET selected = true WHERE id = ANY($1)`, [flaggedMealIds]);
+        return res.json({
+            success: true,
+            message: 'Updated selected meals'
         });
     } catch(error) {
         console.log(error.message);

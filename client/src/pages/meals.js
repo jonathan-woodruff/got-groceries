@@ -3,11 +3,10 @@
 
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchMeals } from '../api/inapp';
+import { fetchMeals, putSelected } from '../api/inapp';
 import { fetchProtectedInfo, fetchProtectedInfoSSO } from '../api/auth';
 import { logout } from '../utils/index';
 import { unauthenticateUser, notSSO } from '../redux/slices/authSlice';
-import { addMeal, removeMeal } from '../redux/slices/mealsSlice';
 import Layout from '../components/layout';
 import { useNavigate, createSearchParams } from 'react-router-dom';
 import { Button, CssBaseline, Box, Container, Typography } from '@mui/material';
@@ -21,7 +20,6 @@ const Meals = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { ssoLogin } = useSelector(state => state.auth);
-  const { selectedMealsList } = useSelector(state => state.meals);
   const [loading, setLoading] = useState(true);
   const [mealsOptions, setMealsOptions] = useState([]);
   const [selectedMeals, setSelectedMeals] = useState([]);
@@ -41,7 +39,8 @@ const Meals = () => {
   const getMeals = async() => {
     try {
       const { data } = await fetchMeals();
-      setMealsOptions(data.meals);
+      setMealsOptions(data.mealOptions);
+      setSelectedMeals(data.selectedMeals);
       setLoading(false);
     } catch(error) {
       logout(); //if the user isn't property authenticated using the token on the cookie or there is some other issue, this will force logout thus not allowing a user to gain unauthenticated access
@@ -75,7 +74,6 @@ const Meals = () => {
     const selectedMeal = meals.splice(index, 1);
     setMealsOptions(meals);
     setSelectedMeals([...selectedMeals, selectedMeal[0]]);
-    dispatch(addMeal({ meal: selectedMeal[0] }))
     setIsValid(true);
   };
 
@@ -84,15 +82,22 @@ const Meals = () => {
     const mealOption = selected.splice(index, 1);
     setSelectedMeals(selected);
     setMealsOptions([...mealsOptions, mealOption[0]]);
-    dispatch(removeMeal({ meal: mealOption[0] }))
   };
 
   const handleContinue = (e) => {
-    if (!selectedMealsList.length) {
+    if (!selectedMeals.length) {
       setIsValid(false);
     } else {
+      const updateDatabase = async () => {
+        await putSelected({ meals: selectedMeals });
+      };
+      updateDatabase();
       navigate('/ingredients');
     }
+  };
+
+  const handleBack = (e) => {
+    navigate('/list');
   };
 
   return loading ? (
@@ -145,9 +150,14 @@ const Meals = () => {
                 })
                 }
               </Box>
-              <Button onClick={ handleContinue } variant="contained" sx={{ mt: 5 }}>
-                Continue
-              </Button>
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mt: 5 }}>
+                <Button onClick={ handleBack } variant="contained" color="grey" sx={{ pr: 3, pl: 3, mr: 2 }}>
+                  Back
+                </Button>
+                <Button onClick={ handleContinue } variant="contained" sx={{ pr: 3, pl: 3 }}>
+                  Continue
+                </Button>
+              </Box>
               <Typography variant="body1" color='red' sx={{ mt: 1 }}>
                 { isValid ? '' : 'Please select at least one meal' }
               </Typography>
