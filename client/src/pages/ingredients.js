@@ -77,8 +77,10 @@ const Ingredients = () => {
   };
 
   useEffect(() => {
-    //loadSelected();
-    getIngredients();
+    const initializeStuff = async () => {
+      await getIngredients();
+    }
+    initializeStuff();
     setLoading(false);
   }, []);
 

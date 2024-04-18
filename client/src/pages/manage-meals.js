@@ -44,7 +44,10 @@ const ManageMeals = () => {
   };
 
   useEffect(() => {
-    getMeals();
+    const initializeStuff = async () => {
+      await getMeals();
+    }
+    initializeStuff();
   }, []);
 
   const handleClick = () => {

@@ -48,34 +48,38 @@ const CreateEditMeal = (props) => {
   ]);
 
   useEffect(() => {
-    async function loadData() {
-        if (isEditing) {
-            const urlParams = new URLSearchParams(window.location.search);
-            const mealId = urlParams.get('id');
-            try {
-                const response = await getMealIngredients(mealId); //get ingredients from database
-                const mealIngredients = response.data.ingredients;
-                const mealName = response.data.mealName;
-                //add key-value pairs
-                mealIngredients.forEach((ingredientRow, index) => {
-                    ingredientRow['used'] = true;
-                    index === 0 ? ingredientRow['showRemove'] = false : ingredientRow['showRemove'] = true;
-                });
-                mealIngredients.push({ name: '', quantity: '1', category: 'Produce', used: false, showRemove: false}); //add blank row
-                setValues(mealIngredients);
-                setMealName(mealName);
-                setStartingMealName(mealName);
-                setLoading(false);
-            } catch(error) {
-                console.log(error);
-                navigate(-1);
-            }
-        } else{
-            setLoading(false);
-        }
+    const initializeStuff = async () => {
+      await loadData();
     }
-    loadData();
+    initializeStuff();
   }, []);
+
+  const loadData = async () => {
+    if (isEditing) {
+        const urlParams = new URLSearchParams(window.location.search);
+        const mealId = urlParams.get('id');
+        try {
+            const response = await getMealIngredients(mealId); //get ingredients from database
+            const mealIngredients = response.data.ingredients;
+            const mealName = response.data.mealName;
+            //add key-value pairs
+            mealIngredients.forEach((ingredientRow, index) => {
+                ingredientRow['used'] = true;
+                index === 0 ? ingredientRow['showRemove'] = false : ingredientRow['showRemove'] = true;
+            });
+            mealIngredients.push({ name: '', quantity: '1', category: 'Produce', used: false, showRemove: false}); //add blank row
+            setValues(mealIngredients);
+            setMealName(mealName);
+            setStartingMealName(mealName);
+            setLoading(false);
+        } catch(error) {
+            console.log(error);
+            navigate(-1);
+        }
+    } else{
+        setLoading(false);
+    }
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault();

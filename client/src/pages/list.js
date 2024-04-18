@@ -31,6 +31,7 @@ const List = () => {
     try {
       const { data } = ssoLogin ? await fetchProtectedInfoSSO() : await fetchProtectedInfo();
       setProtectedData(data.info);
+      console.log('p');
     } catch(error) {
       logout(); //if the user isn't property authenticated using the token on the cookie or there is some other issue, this will force logout thus not allowing a user to gain unauthenticated access
       dispatch(notSSO());
@@ -38,8 +39,21 @@ const List = () => {
     }
   };
 
+  /* Structure of groceryList...
+  [
+    {
+      category: produce,
+      items: [
+        {name: bla, quantity: bla...},
+        {name: blad, quantity: di...}
+      ]
+    }, 
+    ...
+  ]
+  */
   const assembleGroceryList = async () => {
     try {
+      console.log('a');
       const { data } = await fetchGroceryList();
       //organize the grocery list by category
       const organizedList = [];
@@ -72,15 +86,18 @@ const List = () => {
     }
   };
 
-  const checkFinishedCategories = () => {
-    console.log(groceryList)
-  };
-
+  //ensure the user is authenticated to view the page, and then retrieve their data
   useEffect(() => {
-    protectedInfo();
-    assembleGroceryList();
-    checkFinishedCategories();
-    setLoading(false);
+    const initializeStuff = async () => {
+      await protectedInfo();
+      await assembleGroceryList();
+      setLoading(false);
+    }
+    initializeStuff();
+  }, []);
+
+  //set the autosave interval
+  useEffect(() => {
     const autosave = setInterval(function() {
       setAutosave(true);
     }, 1000 * 60); // runs every minute
