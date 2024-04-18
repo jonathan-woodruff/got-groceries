@@ -33,7 +33,7 @@ const CreateEditMeal = (props) => {
   const navigate = useNavigate();
   const { ssoLogin } = useSelector(state => state.auth);
   const [loading, setLoading] = useState(true);
-  const [protectedData, setProtectedData] = useState(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [mealName, setMealName] = useState('');
   const [mealNameError, setMealNameError] = useState(false);
   const [startingMealName, setStartingMealName] = useState('');
@@ -51,6 +51,7 @@ const CreateEditMeal = (props) => {
   const checkAuthenticated = async () => {
     try {
       ssoLogin ? await fetchProtectedInfoSSO() : await fetchProtectedInfo();
+      setIsAuthenticated(true);
     } catch(error) {
       logout(); //if the user isn't property authenticated using the token on the cookie or there is some other issue, this will force logout thus not allowing a user to gain unauthenticated access
       dispatch(notSSO());
@@ -59,39 +60,45 @@ const CreateEditMeal = (props) => {
   };
 
   useEffect(() => {
-    const initializeStuff = async () => {
+    const initializeAuth = async () => {
       await checkAuthenticated();
-      await loadData();
     }
-    initializeStuff();
+    initializeAuth();
   }, []);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      const initializePage = async () => {
+        await loadData();
+        setLoading(false);
+      }
+      initializePage();
+    }
+  }, [isAuthenticated]);
 
   const loadData = async () => {
     if (isEditing) {
-        const urlParams = new URLSearchParams(window.location.search);
-        const mealId = urlParams.get('id');
-        try {
-            const response = await getMealIngredients(mealId); //get ingredients from database
-            const mealIngredients = response.data.ingredients;
-            const mealName = response.data.mealName;
-            //add key-value pairs
-            mealIngredients.forEach((ingredientRow, index) => {
-                ingredientRow['used'] = true;
-                index === 0 ? ingredientRow['showRemove'] = false : ingredientRow['showRemove'] = true;
-            });
-            mealIngredients.push({ name: '', quantity: '1', category: 'Produce', used: false, showRemove: false}); //add blank row
-            setValues(mealIngredients);
-            setMealName(mealName);
-            setStartingMealName(mealName);
-            setLoading(false);
-        } catch(error) {
-            console.log(error);
-            navigate(-1);
-        }
-    } else{
-        setLoading(false);
+      const urlParams = new URLSearchParams(window.location.search);
+      const mealId = urlParams.get('id');
+      try {
+          const response = await getMealIngredients(mealId); //get ingredients from database
+          const mealIngredients = response.data.ingredients;
+          const mealName = response.data.mealName;
+          //add key-value pairs
+          mealIngredients.forEach((ingredientRow, index) => {
+              ingredientRow['used'] = true;
+              index === 0 ? ingredientRow['showRemove'] = false : ingredientRow['showRemove'] = true;
+          });
+          mealIngredients.push({ name: '', quantity: '1', category: 'Produce', used: false, showRemove: false}); //add blank row
+          setValues(mealIngredients);
+          setMealName(mealName);
+          setStartingMealName(mealName);
+      } catch(error) {
+          console.log(error);
+          navigate(-1);
+      }
     }
-  }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();

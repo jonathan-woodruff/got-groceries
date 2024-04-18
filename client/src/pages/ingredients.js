@@ -33,11 +33,13 @@ const Ingredients = () => {
   const [loading, setLoading] = useState(true);
   const [ingredientsList, setIngredientsList] = useState([]);
   const [isValid, setIsValid] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
 
   const checkAuthenticated = async () => {
     try {
       ssoLogin ? await fetchProtectedInfoSSO() : await fetchProtectedInfo();
+      setIsAuthenticated(true);
     } catch(error) {
       logout(); //if the user isn't property authenticated using the token on the cookie or there is some other issue, this will force logout thus not allowing a user to gain unauthenticated access
       dispatch(notSSO());
@@ -118,13 +120,21 @@ const Ingredients = () => {
   };
 
   useEffect(() => {
-    const initializeStuff = async () => {
+    const initializeAuth = async () => {
       await checkAuthenticated();
-      await getIngredients();
     }
-    initializeStuff();
-    setLoading(false);
+    initializeAuth();
   }, []);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      const initializePage = async () => {
+        await getIngredients();
+        setLoading(false);
+      }
+      initializePage();
+    }
+  }, [isAuthenticated]);
 
 
   return loading ? (

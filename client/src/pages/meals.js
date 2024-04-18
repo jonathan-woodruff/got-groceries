@@ -24,11 +24,13 @@ const Meals = () => {
   const [mealsOptions, setMealsOptions] = useState([]);
   const [selectedMeals, setSelectedMeals] = useState([]);
   const [isValid, setIsValid] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
 
   const checkAuthenticated = async () => {
     try {
       ssoLogin ? await fetchProtectedInfoSSO() : await fetchProtectedInfo();
+      setIsAuthenticated(true);
     } catch(error) {
       logout(); //if the user isn't property authenticated using the token on the cookie or there is some other issue, this will force logout thus not allowing a user to gain unauthenticated access
       dispatch(notSSO());
@@ -41,7 +43,6 @@ const Meals = () => {
       const { data } = await fetchMeals();
       setMealsOptions(data.mealOptions);
       setSelectedMeals(data.selectedMeals);
-      setLoading(false);
     } catch(error) {
       logout(); //if the user isn't property authenticated using the token on the cookie or there is some other issue, this will force logout thus not allowing a user to gain unauthenticated access
       dispatch(notSSO());
@@ -50,12 +51,21 @@ const Meals = () => {
   };
 
   useEffect(() => {
-    const initializeStuff = async () => {
+    const initializeAuth = async () => {
       await checkAuthenticated();
-      await getMeals();
     };
-    initializeStuff();
+    initializeAuth();
   }, []);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      const initializePage = async () => {
+        await getMeals();
+        setLoading(false);
+      };
+      initializePage();
+    }
+  }, [isAuthenticated]);
 
   const handleClick = () => {
     navigate('/meals/create-meal')

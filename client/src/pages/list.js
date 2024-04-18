@@ -25,10 +25,12 @@ const List = () => {
   const [groceryList, setGroceryList] = useState([]);
   const [autosave, setAutosave] = useState(false);
   const [boxesChanged, setBoxesChanged] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   const checkAuthenticated = async () => {
     try {
       ssoLogin ? await fetchProtectedInfoSSO() : await fetchProtectedInfo();
+      setIsAuthenticated(true);
     } catch(error) {
       logout(); //if the user isn't property authenticated using the token on the cookie or there is some other issue, this will force logout thus not allowing a user to gain unauthenticated access
       dispatch(notSSO());
@@ -84,13 +86,22 @@ const List = () => {
 
   //ensure the user is authenticated to view the page, and then retrieve their data
   useEffect(() => {
-    const initializeStuff = async () => {
+    const initializeAuth = async () => {
       await checkAuthenticated();
-      await assembleGroceryList();
-      setLoading(false);
     }
-    initializeStuff();
+    initializeAuth();
   }, []);
+
+  //load the page content
+  useEffect(() => {
+    if (isAuthenticated) {
+      const initializePage = async () => {
+        await assembleGroceryList();
+        setLoading(false);
+      };
+      initializePage();
+    }
+  }, [isAuthenticated])
 
   //set the autosave interval
   useEffect(() => {

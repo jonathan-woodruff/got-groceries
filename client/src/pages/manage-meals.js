@@ -32,10 +32,12 @@ const ManageMeals = () => {
   const { ssoLogin } = useSelector(state => state.auth);
   const [loading, setLoading] = useState(true);
   const [mealsList, setMealsList] = useState([]);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   const checkAuthenticated = async () => {
     try {
       ssoLogin ? await fetchProtectedInfoSSO() : await fetchProtectedInfo();
+      setIsAuthenticated(true);
     } catch(error) {
       logout(); //if the user isn't property authenticated using the token on the cookie or there is some other issue, this will force logout thus not allowing a user to gain unauthenticated access
       dispatch(notSSO());
@@ -47,19 +49,27 @@ const ManageMeals = () => {
     try {
       const { data } = await fetchMeals();
       setMealsList(data.meals);
-      setLoading(false);
     } catch(error) {
       console.log(error);
     }
   };
 
   useEffect(() => {
-    const initializeStuff = async () => {
+    const initializeAuth = async () => {
       await checkAuthenticated();
-      await getMeals();
     }
-    initializeStuff();
+    initializeAuth();
   }, []);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      const initializePage = async () => {
+        await getMeals();
+        setLoading(false);
+      }
+      initializePage();
+    }
+  }, [isAuthenticated]);
 
   const handleClick = () => {
     const urlParams = new URLSearchParams(window.location.search);
