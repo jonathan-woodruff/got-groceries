@@ -3,6 +3,9 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchIngredients, onFinish } from '../api/inapp';
+import { fetchProtectedInfo, fetchProtectedInfoSSO } from '../api/auth';
+import { logout } from '../utils/index';
+import { unauthenticateUser, notSSO } from '../redux/slices/authSlice';
 import Layout from '../components/layout';
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -25,6 +28,7 @@ const defaultTheme = createTheme();
 const Ingredients = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { ssoLogin } = useSelector(state => state.auth);
   const { selectedMealsList } = useSelector(state => state.meals);
   const [loading, setLoading] = useState(true);
   const [droppedMeals, setDroppedMeals] = useState([]);
@@ -33,6 +37,16 @@ const Ingredients = () => {
   const [droppedIndex, setDroppedIndex] = useState(null);
   const [isValid, setIsValid] = useState(true);
 
+
+  const checkAuthenticated = async () => {
+    try {
+      ssoLogin ? await fetchProtectedInfoSSO() : await fetchProtectedInfo();
+    } catch(error) {
+      logout(); //if the user isn't property authenticated using the token on the cookie or there is some other issue, this will force logout thus not allowing a user to gain unauthenticated access
+      dispatch(notSSO());
+      dispatch(unauthenticateUser());
+    }
+  };
 
   const handleSelect = index => (e) => {
     if (droppedIndex === index) {
@@ -78,6 +92,7 @@ const Ingredients = () => {
 
   useEffect(() => {
     const initializeStuff = async () => {
+      await checkAuthenticated();
       await getIngredients();
     }
     initializeStuff();
@@ -93,7 +108,7 @@ const Ingredients = () => {
     <div>
       <Layout>
         <ThemeProvider theme={defaultTheme}>
-          <Container component="main" maxWidth="md">
+          <Container component="main" maxWidth="sm">
             <CssBaseline />
             <Box
               sx={{
@@ -120,7 +135,7 @@ const Ingredients = () => {
                         return (
                           <>
                           { ingredientsList[index2].mealid === selectedMealsList[index].id
-                            ? <Grid item xs={4} sx={{ mb: 4 }}>
+                            ? <Grid item xs={4} sx={{ mb: 2 }}>
                                 <FormControlLabel control={ <Checkbox onChange={ handleCheck(index2) } checked={ ingredientsList[index2].checked } /> } label={ ingredientsList[index2].ingredientname } />
                               </Grid>
                             : <></>

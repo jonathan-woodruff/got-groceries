@@ -1,7 +1,7 @@
 /* the page that the user sees upon authentication */
 /* When the page loads, useEffect will check if the user is authenticated. If so, it will show the private information. If the user is not authenticated, it will log them out */
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchProtectedInfo, fetchProtectedInfoSSO } from '../api/auth';
 import { fetchGroceryList, putGroceryCart } from '../api/inapp';
@@ -22,16 +22,13 @@ const List = () => {
   const navigate = useNavigate();
   const { ssoLogin } = useSelector(state => state.auth);
   const [loading, setLoading] = useState(true);
-  const [protectedData, setProtectedData] = useState(null);
   const [groceryList, setGroceryList] = useState([]);
   const [autosave, setAutosave] = useState(false);
   const [boxesChanged, setBoxesChanged] = useState(false);
 
-  const protectedInfo = async () => {
+  const checkAuthenticated = async () => {
     try {
-      const { data } = ssoLogin ? await fetchProtectedInfoSSO() : await fetchProtectedInfo();
-      setProtectedData(data.info);
-      console.log('p');
+      ssoLogin ? await fetchProtectedInfoSSO() : await fetchProtectedInfo();
     } catch(error) {
       logout(); //if the user isn't property authenticated using the token on the cookie or there is some other issue, this will force logout thus not allowing a user to gain unauthenticated access
       dispatch(notSSO());
@@ -53,7 +50,6 @@ const List = () => {
   */
   const assembleGroceryList = async () => {
     try {
-      console.log('a');
       const { data } = await fetchGroceryList();
       //organize the grocery list by category
       const organizedList = [];
@@ -89,7 +85,7 @@ const List = () => {
   //ensure the user is authenticated to view the page, and then retrieve their data
   useEffect(() => {
     const initializeStuff = async () => {
-      await protectedInfo();
+      await checkAuthenticated();
       await assembleGroceryList();
       setLoading(false);
     }
@@ -166,7 +162,7 @@ const List = () => {
     <div>
       <Layout>
         <ThemeProvider theme={defaultTheme}>
-          <Container component="main" maxWidth="md">
+          <Container component="main" maxWidth="sm">
             <CssBaseline />
             <Box
               sx={{

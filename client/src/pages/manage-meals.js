@@ -5,11 +5,12 @@ import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { onDeleteMeal } from '../api/inapp';
 import { fetchMeals } from '../api/inapp';
+import { fetchProtectedInfo, fetchProtectedInfoSSO } from '../api/auth';
+import { logout } from '../utils/index';
 import { unauthenticateUser, notSSO } from '../redux/slices/authSlice';
 import { removeMeal } from '../redux/slices/mealsSlice';
 import Layout from '../components/layout';
 import { useNavigate, createSearchParams } from 'react-router-dom';
-import { logout } from '../utils/index';
 import { Button, CssBaseline, Box, Container, Typography, Grid, Paper } from '@mui/material';
 import { createTheme, ThemeProvider, experimentalStyled as styled } from '@mui/material/styles';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -29,9 +30,19 @@ const Item = styled(Paper)(({ theme }) => ({
 const ManageMeals = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { ssoLogin } = useSelector(state => state.auth);
   const [loading, setLoading] = useState(true);
   const [mealsList, setMealsList] = useState([]);
 
+  const checkAuthenticated = async () => {
+    try {
+      ssoLogin ? await fetchProtectedInfoSSO() : await fetchProtectedInfo();
+    } catch(error) {
+      logout(); //if the user isn't property authenticated using the token on the cookie or there is some other issue, this will force logout thus not allowing a user to gain unauthenticated access
+      dispatch(notSSO());
+      dispatch(unauthenticateUser());
+    }
+  };
 
   const getMeals = async() => {
     try {
@@ -45,6 +56,7 @@ const ManageMeals = () => {
 
   useEffect(() => {
     const initializeStuff = async () => {
+      await checkAuthenticated();
       await getMeals();
     }
     initializeStuff();

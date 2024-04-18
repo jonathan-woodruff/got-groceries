@@ -4,11 +4,12 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Layout from '../components/layout';
+import { fetchProtectedInfo, fetchProtectedInfoSSO } from '../api/auth';
+import { logout } from '../utils/index';
 import { unauthenticateUser, notSSO } from '../redux/slices/authSlice';
 import { useNavigate } from 'react-router-dom';
 import { createMealValidation } from '../validation/forms';
 import { onCreateMeal, getMealIngredients, onEditMeal, onEditMealUnchangedName } from '../api/inapp';
-import { logout } from '../utils/index';
 import {
   Button,
   CssBaseline,
@@ -30,7 +31,7 @@ const CreateEditMeal = (props) => {
   const isEditing = props.isEditing;
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { ssoLogin} = useSelector(state => state.auth);
+  const { ssoLogin } = useSelector(state => state.auth);
   const [loading, setLoading] = useState(true);
   const [protectedData, setProtectedData] = useState(null);
   const [mealName, setMealName] = useState('');
@@ -47,8 +48,19 @@ const CreateEditMeal = (props) => {
     { name: '', quantity: '1', category: 'Produce', used: false, showRemove: false }
   ]);
 
+  const checkAuthenticated = async () => {
+    try {
+      ssoLogin ? await fetchProtectedInfoSSO() : await fetchProtectedInfo();
+    } catch(error) {
+      logout(); //if the user isn't property authenticated using the token on the cookie or there is some other issue, this will force logout thus not allowing a user to gain unauthenticated access
+      dispatch(notSSO());
+      dispatch(unauthenticateUser());
+    }
+  };
+
   useEffect(() => {
     const initializeStuff = async () => {
+      await checkAuthenticated();
       await loadData();
     }
     initializeStuff();
