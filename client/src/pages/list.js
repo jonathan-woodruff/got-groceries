@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchProtectedInfo, fetchProtectedInfoSSO } from '../api/auth';
 import { fetchGroceryList, putGroceryCart, putFreshStart } from '../api/inapp';
 import Layout from '../components/layout';
+import { Spinner } from '../components/spinner';
 import { unauthenticateUser, notSSO } from '../redux/slices/authSlice';
 import { useNavigate } from 'react-router-dom';
 import { logout } from '../utils/index';
@@ -137,14 +138,14 @@ const List = () => {
   useEffect(() => {
     const autosave = setInterval(function() {
       setAutosave(true);
-    }, 1000 * 60); // runs every minute
+    }, 1000 * 10); // runs every 10 seconds
     return () => {
       setAutosave(false); // turn autosave off
       clearInterval(autosave); // clear autosave on dismount
     };
   }, []);
 
-  //autosave if it's been a minute and if changes were made
+  //autosave if it's been 10 seconds and if changes were made
   useEffect(() => {
     if (autosave && boxesChanged) {
         updateCart();
@@ -213,7 +214,7 @@ const List = () => {
 
   return loading ? (
     <Layout>
-      <h1>Loading...</h1>
+      <Spinner />
     </Layout>
   ) : (
     <div>
@@ -236,7 +237,7 @@ const List = () => {
                 return (
                   <>
                   <Button 
-                    key={index} 
+                    key={groceryList[index].category} 
                     onClick={ handleSelect(index) } 
                     variant={ groceryList[index].isFinished ? "contained" : "outlined" }
                     fullWidth 
@@ -252,7 +253,7 @@ const List = () => {
                     { groceryList[index].isDropped ? 
                         groceryList[index].items.map((input, index2) => {
                         return (
-                          <Grid item xs={4} sx={{ mb: 2 }}>
+                          <Grid item xs={4} sx={{ mb: 2 }} key={groceryList[index].category + ' ' + groceryList[index].items[index2].name}>
                             <FormControlLabel control={ <Checkbox onChange={ handleCheck(index, index2) } checked={ groceryList[index].items[index2].incart } /> } label={ groceryList[index].items[index2].name + ' (' + groceryList[index].items[index2].quantity + ')' } />
                           </Grid>
                         )

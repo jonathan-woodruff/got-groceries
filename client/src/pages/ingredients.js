@@ -7,6 +7,7 @@ import { fetchProtectedInfo, fetchProtectedInfoSSO } from '../api/auth';
 import { logout } from '../utils/index';
 import { unauthenticateUser, notSSO } from '../redux/slices/authSlice';
 import Layout from '../components/layout';
+import { Spinner } from '../components/spinner';
 import { useNavigate, createSearchParams } from 'react-router-dom';
 import { 
   Button, 
@@ -152,7 +153,7 @@ const Ingredients = () => {
 
   return loading ? (
     <Layout>
-      <h1>Loading...</h1>
+      <Spinner />
     </Layout>
   ) : (
     <div>
@@ -174,7 +175,7 @@ const Ingredients = () => {
               { ingredientsList.map((input, index) => {
                 return (
                   <>
-                  <Button key={index} onClick={ handleSelect(index) } variant="outlined" fullWidth endIcon={ ingredientsList[index].isDropped ? <KeyboardArrowDownIcon /> : <KeyboardArrowRightIcon /> } sx={{ m: 1, textTransform: 'none', borderRadius: '70px' }} >
+                  <Button key={ingredientsList[index].meal} onClick={ handleSelect(index) } variant="outlined" fullWidth endIcon={ ingredientsList[index].isDropped ? <KeyboardArrowDownIcon /> : <KeyboardArrowRightIcon /> } sx={{ m: 1, textTransform: 'none', borderRadius: '70px' }} >
                     <Box sx={{ width: '90%' }}>
                         { ingredientsList[index].meal }
                     </Box>
@@ -183,7 +184,7 @@ const Ingredients = () => {
                     { ingredientsList[index].isDropped ? 
                         ingredientsList[index].ingredients.map((input, index2) => {
                         return (
-                          <Grid item xs={4} sx={{ mb: 2 }}>
+                          <Grid item xs={4} sx={{ mb: 2 }} key={ingredientsList[index].ingredients[index2].ingredientid}>
                             <FormControlLabel control={ <Checkbox onChange={ handleCheck(index, index2) } checked={ ingredientsList[index].ingredients[index2].inlist } /> } label={ ingredientsList[index].ingredients[index2].ingredientname } />
                           </Grid>
                         )

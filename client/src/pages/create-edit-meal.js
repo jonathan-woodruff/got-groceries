@@ -4,6 +4,7 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Layout from '../components/layout';
+import { Spinner } from '../components/spinner';
 import { fetchProtectedInfo, fetchProtectedInfoSSO } from '../api/auth';
 import { logout } from '../utils/index';
 import { unauthenticateUser, notSSO } from '../redux/slices/authSlice';
@@ -194,7 +195,7 @@ const CreateEditMeal = (props) => {
 
   return loading ? (
     <Layout>
-      <h1>Loading...</h1>
+      <Spinner />
     </Layout>
   ) : (
     <div>

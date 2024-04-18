@@ -2,13 +2,14 @@
 
 import { AppBar, Toolbar, IconButton, Typography, Stack, Button } from '@mui/material';
 import EggIcon from '@mui/icons-material/Egg';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { onLogout } from '../api/auth';
-import { unauthenticateUser, notSSO, assignUser } from '../redux/slices/authSlice';
+import { unauthenticateUser, notSSO } from '../redux/slices/authSlice';
 
 export const Navbar = () => {
     const dispatch = useDispatch();
+    const navigate = useNavigate();
 
     const logout = async () => {
         try {
@@ -34,7 +35,7 @@ export const Navbar = () => {
                 </Typography>
                 {isAuth || ssoLogin ? (
                     <Stack direction='row' spacing={3}>
-                        <Button color='inherit'>Home</Button>
+                        <Button color='inherit' onClick={ () => navigate('/list') }>Home</Button>
                         <Button color='inherit' onClick={ () => logout() }>Log out</Button>
                     </Stack>
                 ) : (

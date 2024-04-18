@@ -9,6 +9,7 @@ import { fetchProtectedInfo, fetchProtectedInfoSSO } from '../api/auth';
 import { logout } from '../utils/index';
 import { unauthenticateUser, notSSO } from '../redux/slices/authSlice';
 import Layout from '../components/layout';
+import { Spinner } from '../components/spinner';
 import { useNavigate, createSearchParams } from 'react-router-dom';
 import { Button, CssBaseline, Box, Container, Typography, Grid, Paper } from '@mui/material';
 import { createTheme, ThemeProvider, experimentalStyled as styled } from '@mui/material/styles';
@@ -111,7 +112,7 @@ const ManageMeals = () => {
 
   return loading ? (
     <Layout>
-      <h1>Loading...</h1>
+      <Spinner />
     </Layout>
   ) : (
     <div>
@@ -134,13 +135,13 @@ const ManageMeals = () => {
                 { mealsList.map((input, index) => {
                   return (
                     <>
-                        <Grid item xs={7} key={index}>
+                        <Grid item xs={7} key={mealsList[index].name}>
                             <Item>{ mealsList[index].name }</Item>
                         </Grid>
-                        <Grid item xs={2.5} key={index}>
+                        <Grid item xs={2.5} key={'edit ' + mealsList[index].name}>
                             <Button onClick={ handleEdit(index) } fullWidth variant="contained" startIcon={ <EditIcon /> } color="grey">Edit</Button>
                         </Grid>
-                        <Grid item xs={2.5} key={index}>
+                        <Grid item xs={2.5} key={'delete ' + mealsList[index].name}>
                             <Button onClick={ handleDelete(index) } fullWidth variant="contained" startIcon={ <DeleteIcon /> } color="error">Delete</Button>
                         </Grid>
                     </>

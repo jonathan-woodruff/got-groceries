@@ -8,6 +8,7 @@ import { fetchProtectedInfo, fetchProtectedInfoSSO } from '../api/auth';
 import { logout } from '../utils/index';
 import { unauthenticateUser, notSSO } from '../redux/slices/authSlice';
 import Layout from '../components/layout';
+import { Spinner } from '../components/spinner';
 import { useNavigate, createSearchParams } from 'react-router-dom';
 import { Button, CssBaseline, Box, Container, Typography } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
@@ -133,7 +134,7 @@ const Meals = () => {
 
   return loading ? (
     <Layout>
-      <h1>Loading...</h1>
+      <Spinner />
     </Layout>
   ) : (
     <div>
