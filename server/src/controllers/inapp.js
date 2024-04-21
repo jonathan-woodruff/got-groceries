@@ -193,13 +193,15 @@ exports.getGroceryList = async (req, res) => {
         id = getUserIdAuth(req);
     }
     try {
-        const q1 = await db.query(`SELECT ingredients.id, ingredients.name, ingredients.quantity, ingredients.category, ingredients.added_to_cart AS incart FROM meals INNER JOIN ingredients ON meals.id = ingredients.meal_id WHERE meals.user_id = $1 AND ingredients.in_grocery_list = true`, [id]);
+        const q1 = await db.query(`SELECT ingredients.id, ingredients.name, ingredients.quantity, ingredients.category, ingredients.added_to_cart AS incart FROM meals INNER JOIN ingredients ON meals.id = ingredients.meal_id WHERE meals.user_id = $1 AND ingredients.in_grocery_list = true ORDER BY ingredients.category, ingredients.added_to_cart, ingredients.name`, [id]);
         const q2 = await db.query(`SELECT started_list AS startedlist, created_list AS createdlist FROM users WHERE user_id = $1`, [id]);
+        const q3 = await db.query(`SELECT name FROM meals WHERE user_id = $1 AND selected = true`, [id]);
         return res.status(200).json({
             success: true,
             message: 'got meals',
             list: q1.rows,
-            userData: q2.rows
+            userData: q2.rows,
+            meals: q3.rows
         });
     } catch(error) {
         console.log(error.message);

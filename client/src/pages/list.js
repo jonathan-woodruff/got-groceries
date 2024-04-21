@@ -45,6 +45,8 @@ const List = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [emptyList, setEmptyList] = useState(false);
   const [listHistory, setListHistory] = useState('');
+  const [selectedMeals, setSelectedMeals] = useState('');
+  const [emptySelected, setEmptySelected] = useState(false);
 
   const checkAuthenticated = async () => {
     try {
@@ -79,6 +81,17 @@ const List = () => {
         setListHistory('started list');
       } else {
         setListHistory('new user');
+      };
+      //set the list of selected meals
+      const responseMeals = data.meals;
+      if (!responseMeals.length) {
+        setEmptySelected(true);
+      } else {
+        let mealsString = '';
+        responseMeals.forEach(meal => {
+          mealsString += meal.name + ', ';
+        });
+        setSelectedMeals(mealsString.substring(0, mealsString.length - 2));
       }
       //organize the grocery list by category
       const organizedList = [];
@@ -131,8 +144,8 @@ const List = () => {
   }, [isAuthenticated]);
 
   useEffect(() => {
-    if ((groceryList.length || emptyList) && listHistory) setLoading(false);
-  }, [groceryList, emptyList, listHistory]);
+    if ((groceryList.length || emptyList) && listHistory && (selectedMeals || emptySelected)) setLoading(false);
+  }, [groceryList, emptyList, listHistory, selectedMeals, emptySelected]);
 
   //set the autosave interval
   useEffect(() => {
@@ -233,6 +246,12 @@ const List = () => {
               <Typography component="h2" variant="h6" sx={{ mt: 3, mb: 3 }}>
                 My Grocery List
               </Typography>
+              { listHistory === 'created list' ? 
+                <Typography variant="body1" sx={{ mb: 3 }}>
+                  Meals: { selectedMeals }
+              </Typography> :
+              <></>
+              }
               { listHistory === 'created list' ? groceryList.map((input, index) => {
                 return (
                   <>
