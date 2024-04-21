@@ -11,7 +11,7 @@ import { unauthenticateUser, notSSO } from '../redux/slices/authSlice';
 import Layout from '../components/layout';
 import { Spinner } from '../components/spinner';
 import { useNavigate, createSearchParams } from 'react-router-dom';
-import { Button, CssBaseline, Box, Container, Typography, Grid, Paper } from '@mui/material';
+import { Button, CssBaseline, Box, Container, Typography, Grid, Paper, useMediaQuery, IconButton } from '@mui/material';
 import { createTheme, ThemeProvider, experimentalStyled as styled } from '@mui/material/styles';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
@@ -31,6 +31,7 @@ const ManageMeals = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { ssoLogin } = useSelector(state => state.auth);
+  const matches475 = useMediaQuery('(max-width: 475px)');
   const [loading, setLoading] = useState(true);
   const [mealsList, setMealsList] = useState([]);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -139,10 +140,44 @@ const ManageMeals = () => {
                             <Item>{ mealsList[index].name }</Item>
                         </Grid>
                         <Grid item xs={2.5} key={'edit ' + mealsList[index].name}>
-                            <Button onClick={ handleEdit(index) } fullWidth variant="contained" startIcon={ <EditIcon /> } color="grey">Edit</Button>
+                            { matches475 ? 
+                            <IconButton>
+                              <EditIcon 
+                                onClick={ handleEdit(index) } 
+                                variant="contained" 
+                                color="grey" 
+                              />
+                            </IconButton> :
+                            <Button 
+                              onClick={ handleEdit(index) } 
+                              fullWidth
+                              variant="contained" 
+                              startIcon={ <EditIcon /> } 
+                              color="grey"
+                            >
+                              Edit
+                            </Button>
+                            }
                         </Grid>
                         <Grid item xs={2.5} key={'delete ' + mealsList[index].name}>
-                            <Button onClick={ handleDelete(index) } fullWidth variant="contained" startIcon={ <DeleteIcon /> } color="error">Delete</Button>
+                            { matches475 ? 
+                            <IconButton>
+                              <DeleteIcon 
+                                onClick={ handleDelete(index) } 
+                                variant="contained" 
+                                color="error" 
+                              />
+                            </IconButton> :
+                            <Button 
+                              onClick={ handleDelete(index) } 
+                              fullWidth
+                              variant="contained" 
+                              startIcon={ <DeleteIcon /> } 
+                              color="error"
+                            >
+                              Delete
+                            </Button>
+                            }
                         </Grid>
                     </>
                   )

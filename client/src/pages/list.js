@@ -23,7 +23,8 @@ import {
   DialogActions,
   DialogContent,
   DialogContentText,
-  DialogTitle
+  DialogTitle,
+  useMediaQuery
 } from '@mui/material';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
@@ -36,6 +37,7 @@ const defaultTheme = createTheme();
 const List = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const matches425 = useMediaQuery('(max-width: 425px)');
   const { ssoLogin } = useSelector(state => state.auth);
   const [loading, setLoading] = useState(true);
   const [groceryList, setGroceryList] = useState([]);
@@ -272,7 +274,12 @@ const List = () => {
                     { groceryList[index].isDropped ? 
                         groceryList[index].items.map((input, index2) => {
                         return (
-                          <Grid item xs={4} sx={{ mb: 2 }} key={groceryList[index].category + ' ' + groceryList[index].items[index2].name}>
+                          <Grid 
+                            item 
+                            xs={ matches425 ? 6 : 4} 
+                            sx={{ mb: 2 }} 
+                            key={groceryList[index].category + ' ' + groceryList[index].items[index2].name}
+                          >
                             <FormControlLabel control={ <Checkbox onChange={ handleCheck(index, index2) } checked={ groceryList[index].items[index2].incart } /> } label={ groceryList[index].items[index2].name + ' (' + groceryList[index].items[index2].quantity + ')' } />
                           </Grid>
                         )

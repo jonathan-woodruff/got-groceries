@@ -20,7 +20,8 @@ import {
   MenuItem,
   Typography,
   Container,
-  IconButton
+  IconButton,
+  useMediaQuery
 } from '@mui/material';
 import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
@@ -30,6 +31,8 @@ const defaultTheme = createTheme();
 
 const CreateEditMeal = (props) => {
   const isEditing = props.isEditing;
+  const matches425 = useMediaQuery('(max-width: 425px)');
+  const matches375 = useMediaQuery('(max-width: 375px)');
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { ssoLogin } = useSelector(state => state.auth);
@@ -233,7 +236,10 @@ const CreateEditMeal = (props) => {
                     <Box sx={{ mt: 2 }}>
                     { values.map((input, index) => {
                         return (
-                          <Box key={index} sx={{ display: 'flex', alignItems: 'center' }}>
+                          <Box 
+                            key={index} 
+                            sx={{ display: 'flex', alignItems: 'center' }}
+                          >
                             <Box sx={{ mt: 0 }}>
                               <TextField 
                                 margin="normal"
@@ -246,6 +252,7 @@ const CreateEditMeal = (props) => {
                                 error={ ingredientError || ingredientIndexError === index ? true : false }
                                 helperText={ ingredientErrorMessage ? ingredientErrorMessage : (ingredientIndexError === index ? ingredientIndexErrorMessage : '') }
                                 sx={{ mr: 1 }}
+                                fullWidth={ matches425 ? true : false }
                               />
                               <TextField 
                                 margin="normal"
@@ -259,7 +266,8 @@ const CreateEditMeal = (props) => {
                                 InputProps={{ inputProps: { min: 1 } }}   
                                 error={ quantityError === index ? true: false }
                                 helperText={ quantityError === index ? quantityErrorMessage : '' }                            
-                                sx={{ mr: 1, width: '80px' }}
+                                sx={ matches375 ? { mr: 1 } : { mr: 1, width: '80px' }}
+                                fullWidth={ matches425 ? true : false }
                               />
                               <Select
                                   labelId="category"
@@ -297,6 +305,7 @@ const CreateEditMeal = (props) => {
                                 </IconButton> :
                                 <></>
                               }
+                              { matches425 ? <hr style={{border: '3px dashed blue'}} /> : <></> }
                             </Box>
                           </Box>
                         )

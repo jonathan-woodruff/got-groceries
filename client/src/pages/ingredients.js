@@ -17,7 +17,8 @@ import {
   Typography, 
   FormControlLabel, 
   Checkbox, 
-  Grid 
+  Grid,
+  useMediaQuery
 } from '@mui/material';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
@@ -31,6 +32,7 @@ const Ingredients = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { ssoLogin } = useSelector(state => state.auth);
+  const matches425 = useMediaQuery('(max-width: 425px)');
   const [loading, setLoading] = useState(true);
   const [ingredientsList, setIngredientsList] = useState([]);
   const [isValid, setIsValid] = useState(true);
@@ -184,7 +186,11 @@ const Ingredients = () => {
                     { ingredientsList[index].isDropped ? 
                         ingredientsList[index].ingredients.map((input, index2) => {
                         return (
-                          <Grid item xs={4} sx={{ mb: 2 }} key={ingredientsList[index].ingredients[index2].ingredientid}>
+                          <Grid 
+                            item 
+                            xs={ matches425 ? 6 : 4} 
+                            sx={{ mb: 2 }} 
+                            key={ingredientsList[index].ingredients[index2].ingredientid}>
                             <FormControlLabel control={ <Checkbox onChange={ handleCheck(index, index2) } checked={ ingredientsList[index].ingredients[index2].inlist } /> } label={ ingredientsList[index].ingredients[index2].ingredientname } />
                           </Grid>
                         )
