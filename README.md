@@ -16,11 +16,7 @@ The GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET you will get from console.cloud.go
 
 ### Create database tables
 
-![users table schema](/client/resources/users_schema.png)
-
-![meals table schema](/client/resources/meals_schema.png)
-
-![ingredients table schema](/client/resources/ingredients_schema.png)
+Find the queries you need in server/database.sql
 
 ### Run it
 
