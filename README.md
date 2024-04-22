@@ -40,6 +40,5 @@ In the other terminal, cd to the client folder.
 
 I didn't make this app for commercial use. I made it to prove my skills to myself and to future employers. That's why I considered the following to be out of scope for this project:
 * Email. It seemed like I would have to pay for an email service if I were to deploy this project to production using a PAAS like Render, and I am not willing to pay. Thus, perhaps the most glaring shortcoming is that anyone can sign up without confirming their email address, which means anyone can sign up using anyone else's email address. I was also unable to implement "forgot password" functionality due to the email restriction.
-* Better responsiveness. For example, the create/edit meal forms don't look good on mobile.
-* Better load time. I'm sure I could prune some of the dependencies, or figure out some way to optimize the initial load time of the app, but I simply didn't even begin researching that.
+* Better load time. I'm sure I could figure out ways to optimize the initial load time of the app, but I simply didn't even begin researching that.
 * Testing. This project does not feature any automated testing.
