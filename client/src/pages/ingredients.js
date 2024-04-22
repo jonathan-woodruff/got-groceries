@@ -189,7 +189,6 @@ const Ingredients = () => {
                           <Grid 
                             item 
                             xs={ matches425 ? 6 : 4} 
-                            sx={{ mb: 2 }} 
                             key={ingredientsList[index].ingredients[index2].ingredientid}>
                             <FormControlLabel control={ <Checkbox onChange={ handleCheck(index, index2) } checked={ ingredientsList[index].ingredients[index2].inlist } /> } label={ ingredientsList[index].ingredients[index2].ingredientname } />
                           </Grid>
