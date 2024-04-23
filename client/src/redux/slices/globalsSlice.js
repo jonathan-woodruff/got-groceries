@@ -3,8 +3,8 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
-    clientURL: 'http://got-groceries-client.onrender.com',
-    serverURL: 'http://got-groceries.onrender.com'
+    clientURL: 'http://localhost:3000',
+    serverURL: 'http://localhost:8000'
 };
 
 export const globalsSlice = createSlice({

@@ -3,7 +3,7 @@
 import axios from 'axios';
 axios.defaults.withCredentials = true; //send the cookie back to the server with token
 
-const serverURL = 'http://got-groceries.onrender.com';
+const serverURL = 'http://localhost:8000';
 
 export async function onRegistration(registrationData) {
     return await axios.post(`${serverURL}/auth/register`, registrationData);
