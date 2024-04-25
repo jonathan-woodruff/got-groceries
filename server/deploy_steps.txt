@@ -1,8 +1,0 @@
-1. Change all the localhost references to the render URLs
-2. Update .env file with actual database info and stuff
-3. Update server/index.js to use the client directory
-4. do npm run build in the client terminal which creates the build directory
-5. add build script to server/package.json
-6. delete node_modules in client and server, and delete package-lock.json
-
-https://www.youtube.com/watch?v=ZsFwpjFmpFQ (10:32)
